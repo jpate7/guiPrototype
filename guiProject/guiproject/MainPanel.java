@@ -12,11 +12,30 @@ public class MainPanel extends JPanel
 	private JSplitPane dataSplit;
 	private JPanel leftPanel;
 	private JPanel rightPanel;
+	private JPanel viewRightPanel;
 	
 	private DefaultListModel names;
 	private DefaultListModel ids;
 	private JList nameList;
 	private JList idList;
+	
+	private JScrollPane scrollRightPane;
+	private JScrollPane listScrollPane;
+	
+	
+	private JLabel idLabel;
+	private JLabel nameLabel;
+	private JLabel phoneLabel;
+	private JLabel statusLabel;
+	private JLabel contactLabel;
+	
+	private JFormattedTextField idText;
+	private JFormattedTextField nameText;
+	private JFormattedTextField phoneNumberText;
+	private JFormattedTextField statusText;
+	
+	private JTextArea contactArea;
+
 	
 	//private JMenu menu;
 
@@ -27,14 +46,21 @@ public class MainPanel extends JPanel
 	 */
 	public MainPanel()
 	{
-		guiData = new DataManager();
+		super(new BorderLayout());
+		this.setPreferredSize(new Dimension(800,600));
+		
+;		guiData = new DataManager();
 		guiData.readFrom("input.txt");
 		
-		this.setSize(400,400);
 		this.setBackground(Color.WHITE);
-		leftPanel = new JPanel();
-		leftPanel.setForeground(Color.BLACK);
 		
+		
+		//configure the left panel
+		leftPanel = new JPanel();
+		leftPanel.setLayout(new BorderLayout());
+		leftPanel.setBackground(Color.BLACK);
+		
+		//configure the list of the nameList 
 		names = new DefaultListModel();
 		ids = new DefaultListModel();
 		Person[] data = guiData.getAllTracers();
@@ -43,39 +69,79 @@ public class MainPanel extends JPanel
 			names.addElement(data[i].getName());
 			ids.addElement(data[i].getId());
 		}
-		
-		nameList = new JList(names);
 		idList = new JList(ids);
+		nameList = new JList(names);
+        
+	
+		
+		//configure the Jlist of the left panel
+		listScrollPane = new JScrollPane();
+        listScrollPane.setPreferredSize(new Dimension(400,600));
+        listScrollPane.setBackground(Color.BLUE);
 		nameList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        nameList.setSelectedIndex(0);
-        nameList.setVisibleRowCount(10);
-        nameList.setVisible(true);
-        JScrollPane listScrollPane = new JScrollPane(nameList);
- 
+		nameList.setSelectedIndex(0);
+		nameList.setVisibleRowCount(10);
+		nameList.setVisible(true);
+		nameList.setLayoutOrientation(JList.VERTICAL);
+		listScrollPane.add(nameList);
+		//listScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		listScrollPane.setViewportView(nameList);
+		leftPanel.add(listScrollPane, BorderLayout.CENTER);
 		
 		
-		
-		
-		
-		
-		leftPanel.setSize(200, 200);
-		leftPanel.add(listScrollPane);
-		
-		
-		
-		
-		
+		//configure the rightPanel
 		rightPanel = new JPanel();
-		rightPanel.setForeground(Color.GRAY);
-
+		rightPanel.setBackground(Color.GREEN);
+		rightPanel.setLayout(new BorderLayout());
+		
+		//configure the Jlabels on the right
+		idLabel = new JLabel("ID: ");
+		idLabel.setBounds(10, 10, 50, 50);
+		nameLabel = new JLabel("Name: ");
+		nameLabel.setBounds(10, 80, 50, 50);
+		phoneLabel = new JLabel("Phone Number: ");
+		phoneLabel.setBounds(10, 160, 50, 100);
+		statusLabel = new JLabel("Status: ");
+		statusLabel.setBounds(10, 220, 50, 50);
+		contactLabel = new JLabel("ID of Contacts: ");
+		contactLabel.setBounds(10, 280, 50, 100);
+		
+		
+		//set up viewRightPanel
+		viewRightPanel = new JPanel();
+		viewRightPanel.setLayout(null);
+		viewRightPanel.setPreferredSize(new Dimension(400,600));
+		viewRightPanel.setBackground(Color.white);
+		viewRightPanel.add(idLabel);
+		viewRightPanel.add(nameLabel);
+		viewRightPanel.add(statusLabel);
+		viewRightPanel.add(phoneLabel);
+		viewRightPanel.add(contactLabel);
 		
 		
 		
 		
 		
 		
+		
+		
+		
+		scrollRightPane = new JScrollPane();
+		scrollRightPane.add(viewRightPanel);
+		scrollRightPane.setBackground(Color.WHITE);
+		scrollRightPane.setPreferredSize(new Dimension(400, 600));
+		scrollRightPane.setViewportView(viewRightPanel);
+		rightPanel.add(scrollRightPane, BorderLayout.CENTER);
+		rightPanel.setPreferredSize(new Dimension(400,600));
+		rightPanel.setVisible(true);
+		
+		//add the two panes to this JPanel
 		dataSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
-		this.add(dataSplit);
+		dataSplit.setBackground(Color.RED);
+		dataSplit.setDividerSize(8);
+		dataSplit.setDividerLocation(400);
+		dataSplit.setPreferredSize(new Dimension(800,600));
+		this.add(dataSplit, BorderLayout.CENTER);
 		
 		
 
