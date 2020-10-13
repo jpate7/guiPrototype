@@ -1,6 +1,7 @@
 package guiproject;
 
 import java.awt.*;
+import java.text.*;
 import java.awt.event.*;
 import javax.swing.*;
 
@@ -100,11 +101,30 @@ public class MainPanel extends JPanel
 		nameLabel = new JLabel("Name: ");
 		nameLabel.setBounds(10, 80, 50, 50);
 		phoneLabel = new JLabel("Phone Number: ");
-		phoneLabel.setBounds(10, 160, 50, 100);
+		phoneLabel.setBounds(10, 160, 100, 50);
 		statusLabel = new JLabel("Status: ");
 		statusLabel.setBounds(10, 220, 50, 50);
 		contactLabel = new JLabel("ID of Contacts: ");
-		contactLabel.setBounds(10, 280, 50, 100);
+		contactLabel.setBounds(10, 250, 100, 50);
+		
+		//set up JFormattedTextFields
+		NumberFormat integerFieldFormatter = NumberFormat.getIntegerInstance();
+		integerFieldFormatter.setMaximumFractionDigits(0);
+		integerFieldFormatter.setGroupingUsed(false);
+		idText = new JFormattedTextField(integerFieldFormatter);
+		idText.setValue(121);
+		idText.setEditable(false);
+		idText.setForeground(Color.RED);
+		idText.setBackground(Color.blue);
+		idText.setLayout(null);
+		idText.setVisible(true);
+		idText.setBounds(70, 10, 50, 50);
+		
+		idLabel.setLabelFor(idText);
+		
+		/*private JFormattedTextField nameText;
+		private JFormattedTextField phoneNumberText;
+		private JFormattedTextField statusText;*/
 		
 		
 		//set up viewRightPanel
@@ -113,6 +133,7 @@ public class MainPanel extends JPanel
 		viewRightPanel.setPreferredSize(new Dimension(400,600));
 		viewRightPanel.setBackground(Color.white);
 		viewRightPanel.add(idLabel);
+		viewRightPanel.add(idText);
 		viewRightPanel.add(nameLabel);
 		viewRightPanel.add(statusLabel);
 		viewRightPanel.add(phoneLabel);
