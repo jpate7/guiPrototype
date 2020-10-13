@@ -150,6 +150,41 @@ public class DataManager
 		return null;
 	}
 	
+	public Person[] getAllTracers()
+	{
+		Person[] temp = new Person[tracers.size()];
+		int j = 0;
+		for(String i: tracers.keySet())
+		{
+			temp[j] = tracers.get(i);
+			j++;
+		}
+		return temp;
+	}
+	
+	public String[] getAllContacts()
+	{
+		String[] temp = new String[tracers.size()];
+		int j = 0;
+		for(String i: tracers.keySet())
+		{
+			temp[j] = i;
+			j++;
+		}
+		return temp;
+	}
+	
+	
+	public Person getTracer(String C)
+	{
+		return tracers.get(C);
+	}
+	
+	public int getSize()
+	{
+		return tracers.size();
+	}
+	
 	
 	//---------------------------------------------------------------------------------------------
 	
