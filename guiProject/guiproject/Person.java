@@ -116,11 +116,11 @@ public class Person {
 	// string representation of this person
 	public String toString () 
 	{
-		String toReturn = "ID: " + id +";"+"Name: " + name +";" + "Status: " + status + ";" + "Phone #: " + phone + ";" + "ID of Contacts: [";
-		
-		while(this.Iterator().hasNext())
+		String toReturn = "ID:" + id +";"+" Name:" + name +";" + " Status:" + status + ";" + " Phone #:" + phone + ";" + " ID of Contacts:[";
+		Iterator<String> iter = Iterator();
+		while(iter.hasNext())
 		{
-			toReturn += this.Iterator().next();
+			toReturn += iter.next()+",";
 		}
 		toReturn += "]";
 	

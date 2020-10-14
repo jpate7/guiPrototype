@@ -154,14 +154,14 @@ public class DataManager
 	}
 	
 	
-	public Person[] getAllTracers()
+	public ArrayList<Person> getAllTracers()
 	{
-		Person[] temp = new Person[tracers.size()];
-		int j = 0;
+		ArrayList<Person> temp = new ArrayList<Person>();
+	
 		for(String i: tracers.keySet())
 		{
-			temp[j] = tracers.get(i);
-			j++;
+			temp.add(tracers.get(i));
+			
 		}
 		return temp;
 	}

@@ -7,3 +7,8 @@
 /MainPanel$1.class
 /MainPanel$contactBoxListener.class
 /MainPanel$nameSelectListener.class
+/MainPanel$btnEditInfoListener.class
+/MainPanel$contactBoxSelectListener.class
+/MainPanel$nameListSelectListener.class
+/MainPanel$btnSaveListener.class
+/MainPanel$btnCancelListener.class

@@ -21,9 +21,6 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	private JPanel rightPanel;
 	private JPanel viewRightPanel;
 	
-	private DefaultListModel<String> names;
-	private DefaultListModel<String> ids;
-	private DefaultListModel<String> contacts;
 	private JList nameList;
 	private JList idList;
 	//private JList contactList;
@@ -39,10 +36,10 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	private JLabel statusLabel;
 	private JLabel contactLabel;
 	
-	private JFormattedTextField idText;
-	private JFormattedTextField nameText;
-	private JFormattedTextField phoneNumberText;
-	private JFormattedTextField statusText;
+	private JTextField idText;
+	private JTextField nameText;
+	private JTextField phoneNumberText;
+	private JTextField statusText;
 	
 	private JTextArea contactArea;
 	
@@ -55,6 +52,8 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	private JButton btnAddContactInfo;
 	private JButton btnCancel;
 	private JButton btnSave;
+	
+	private Person original;
 
 
 	
@@ -68,6 +67,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	public MainPanel()
 	{
 		super();
+		original = null;
 		this.setPreferredSize(new Dimension(MAIN_X,MAIN_Y));
 		
 ;		guiData = new DataManager();
@@ -81,15 +81,14 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		leftPanel.setLayout(new BorderLayout());
 		leftPanel.setBackground(Color.WHITE);
 		
-		//configure the list of the nameList 
-		names = new DefaultListModel<String>();
-		ids = new DefaultListModel<String>();
-		contacts = new DefaultListModel<String>();
-		Person[] data = guiData.getAllTracers();
-		for(int i = 0; i < guiData.getSize(); i++)
+		//configure the list of the nameList
+		DefaultListModel<String> names = new DefaultListModel<String>();
+		DefaultListModel<String> ids = new DefaultListModel<String>();
+		DefaultListModel<String> contacts = new DefaultListModel<String>();
+		ArrayList<Person> data = guiData.getAllTracers();
+		for(Person p: data)
 		{
-			names.addElement(data[i].getId() +", "+ data[i].getName());
-			
+			names.addElement(p.getId() +", "+ p.getName());
 		}
 		idList = new JList(ids);
 		nameList = new JList(names);
@@ -194,8 +193,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		statusText.setLocation(new Point(64,124));
 		statusLabel.setLabelFor(statusText);*/
 		
-		//fill all the right panel based on selectedItem from nameList
-		nameList.addListSelectionListener(new nameSelectListener());
+
 	
 		
 		
@@ -204,8 +202,8 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 
 		contactBox = new JComboBox();
 		//fills the combo box of all the ids
-		fillContactBox(nameList.getSelectedValue().toString());
-		contactBox.addActionListener(new contactBoxListener());	//adds the contactArea Text based on the selected item
+		//fillContactBox(nameList.getSelectedValue().toString());
+		//contactBox.addActionListener(new contactBoxSelectListener());	//adds the contactArea Text based on the selected item
 		
 		
 	
@@ -228,7 +226,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		
 		
 		//adds the necessary elements to the right Viewing panels, which in in a scrollRight Pane
-		setViewRightPanel();
+		addToViewRightPanel();
 		/*//set up viewRightPanel by adding all the elements
 		viewRightPanel = new JPanel();
 		viewRightPanel.setLayout(null);
@@ -257,20 +255,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		scrollRightPane.setViewportView(viewRightPanel);
 		
 		btnEditInfo = new JButton("Edit Info");
-		//implements actionListener for Edit Info
-		btnEditInfo.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				btnEditInfo.setVisible(false);
-				btnSave.setVisible(true);
-				btnCancel.setVisible(true);
-				btnAddContactInfo.setVisible(true);
-				idText.setEditable(true);
-				nameText.setEditable(true);
-				statusText.setEditable(true);
-				phoneNumberText.setEditable(true);
-				contactArea.setEditable(true);
-			}
-		});
+	
 		
 		//set up the buttons(Edit info, Cancel, Save, Add New Contact)
 		setUpPanelBtn();
@@ -297,82 +282,196 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		
 		rightPanel.setPreferredSize(scrollRightPane.getSize());
 		rightPanel.add(scrollRightPane);
-		rightPanel.setVisible(false);
+		rightPanel.setVisible(true);
 
 		//add the two panes to this JPanel
 		dataSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
 		dataSplit.setBackground(Color.RED);
 		dataSplit.setDividerSize(8);
-		dataSplit.setDividerLocation(MAIN_X/2);
+		dataSplit.setDividerLocation(MAIN_X/3);
 		dataSplit.setPreferredSize(new Dimension(MAIN_X,MAIN_Y));
 		this.setLocation(new Point(0,0));
 		this.setPreferredSize(dataSplit.getPreferredSize());
 		this.add(dataSplit);
-	
 		
+		
+		//establish the starting info on the rightPanel
+		fillInfo(data.get(0).getId());
+		fillContactBox(data.get(0).getId());
+		contactArea.setText(guiData.getTracer(contactBox.getItemAt(0).toString()).getPersonInfo());
+		
+		//fill all the right panel based on selectedItem from nameList
+		nameList.addListSelectionListener(new nameListSelectListener());
+		
+		//adds the contactArea Text based on the selected item
+		contactBox.addActionListener(new contactBoxSelectListener());	
+	
+		//implements actionListener for Edit Info button to valid edits
+		btnEditInfo.addActionListener(new btnEditInfoListener());
+		
+		//implements actionListener for Save button to save edits
+		btnSave.addActionListener(new btnSaveListener());
 
+		//implements actionListener for Cancel button to revert edits
+		btnCancel.addActionListener(new btnCancelListener());
 
 	
 		
 	
 	}
 	
-	private class nameSelectListener implements ListSelectionListener
+	//--------------------------------------FIRING LISTENERS-------------------------------------------------------------------------
+	
+	
+	
+	
+	//ActionListener for the "Cancel" Button
+	private class btnCancelListener implements ActionListener
 	{
-		public void valueChanged(ListSelectionEvent e) 
+	
+		public void actionPerformed(ActionEvent e)
 		{
-			
-			fillInfo(nameList.getSelectedValue().toString());
-			rightPanel.setVisible(true);
-			dataSplit.setDividerLocation(MAIN_X/3);
+			idText.setText(original.getId());
+			nameText.setText(original.getName());
+			statusText.setText(original.getStatus());
+			phoneNumberText.setText(original.getNumber());
 			idText.setEditable(false);
 			nameText.setEditable(false);
 			statusText.setEditable(false);
 			phoneNumberText.setEditable(false);
-			contactArea.setText("Please Pick a Contact to get info");
+			
+			fillContactBox(original.getId());
+			contactArea.setText(guiData.getTracer(contactBox.getItemAt(0).toString()).getPersonInfo());
 			contactArea.setEditable(false);
+			
+			btnCancel.setVisible(false);
+			btnSave.setVisible(false);
+			btnEditInfo.setVisible(true);
+			btnAddContactInfo.setVisible(false);
+			
+		}
+	}
+	
+	
+	//ActionListener for the "Save" JButton
+	private class btnSaveListener implements ActionListener
+	{
+		private void updateList()
+		{
+			DefaultListModel names = new DefaultListModel();
+			ArrayList<Person> data = guiData.getAllTracers();
+			for(Person p: data)
+			{
+				names.addElement(p.getId() +", "+ p.getName());
+			}
+			nameList.setModel(names);
+		}
+		
+		
+		
+		public void actionPerformed(ActionEvent e)
+		{
+			Person old_P = original;
+			Person new_P = new Person();
+			new_P.setId(idText.getText().toString());
+			new_P.setName(nameText.getText().toString());
+			new_P.setStatus(statusText.getText().toString());
+			new_P.setNumber(phoneNumberText.getText().toString());
+			
+			for(int i = 0; i < contactBox.getItemCount(); i++)
+			{
+				new_P.addContactID(contactBox.getItemAt(i).toString());
+				
+			}
+			if(original.getId().equals(new_P.getId()))
+			{
+				guiData.updateTracer(new_P);
+				setOriginalPerson(new_P);
+			}
+			/*else if(!(old_P.getId().equals(new_P.getId()) && guiData.containsTracer(guiData.findPerson(new_P.getId()))))
+			{
+				
+			}*/
+			else
+			{
+				guiData.addTracer(new_P);
+				guiData.removeTracer(original);
+				setOriginalPerson(new_P);
+			}
+			btnCancel.setVisible(false);
+			btnSave.setVisible(false);
+			btnEditInfo.setVisible(true);
+			btnAddContactInfo.setVisible(false);
+			updateList();
+		}
+	}
+	
+	//ActionListener for the "Edit Info" JButton
+	private class btnEditInfoListener implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e) {
+			btnEditInfo.setVisible(false);
+			btnSave.setVisible(true);
+			btnCancel.setVisible(true);
+			btnAddContactInfo.setVisible(true);
+			idText.setEditable(true);
+			nameText.setEditable(true);
+			statusText.setEditable(true);
+			phoneNumberText.setEditable(true);
+			//contactArea.setEditable(true);
+		}
+	}
+	
+	//ListSelectionListener for the "nameList" JLIst on the left panel
+	private class nameListSelectListener implements ListSelectionListener
+	{
+		
+		public void valueChanged(ListSelectionEvent e) 
+		{
+			fillInfo(nameList.getSelectedValue().toString());
+			rightPanel.setVisible(true);
+			idText.setEditable(false);
+			nameText.setEditable(false);
+			statusText.setEditable(false);
+			phoneNumberText.setEditable(false);
+			contactArea.setEditable(false);
+			
 			
 	
 		}
 	}
-	private class contactBoxListener implements ActionListener
+	
+	//ActionListener for the "contactBox" JComboBox 
+	private class contactBoxSelectListener implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e)
 		{
-			fillContactArea(contactBox.getSelectedItem().toString());
+			contactArea.setText(guiData.findPerson(contactBox.getSelectedItem().toString()).getPersonInfo());
 		}
 	}
 	
-	private void setUpPanelBtn()
-	{
-		btnEditInfo.setBackground(Color.WHITE);
-		btnEditInfo.setBounds(30, 368, 117, 29);
-		viewRightPanel.add(btnEditInfo);
-		
-		btnAddContactInfo = new JButton("Add New Contact");
-		btnAddContactInfo.setBounds(170, 174, 134, 29);
-		viewRightPanel.add(btnAddContactInfo);
-		btnAddContactInfo.setVisible(false);
-		
-		btnCancel = new JButton("Cancel");
-		btnCancel.setBounds(10, 368, 86, 29);
-		viewRightPanel.add(btnCancel);
-		btnCancel.setVisible(false);
-		
-		btnSave = new JButton("Save");
-		btnSave.setBounds(102, 368, 86, 29);
-		viewRightPanel.add(btnSave);
-		scrollRightPane.setPreferredSize(viewRightPanel.getSize());
-		btnSave.setVisible(false);
-	}
+	
+	
+	//---------------------HELPER FUNCTIONS------------------------------------------------------------------------------------
 	
 
 	
+	private void setOriginalPerson(Person old)
+	{
+		original = old;
+	}
+	
+	public Person getOriginalPerson()
+	{
+		return original;
+	}
+	
 	public void fillContactBox(String selectedValue)
 	{
-		String temp = getSelectedID(selectedValue);
-		ArrayList<String> c = guiData.getAllContactsOf(temp.toString());
+		String tempId = getSelectedID(selectedValue);
+		ArrayList<String> c = guiData.getAllContactsOf(tempId.toString());
 		contactBox.setModel(new DefaultComboBoxModel(c.toArray()));
+		contactArea.setText(guiData.getTracer(c.get(0)).getPersonInfo());
 		
 	}
 	
@@ -387,11 +486,6 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		return temp.toString();
 	}
 	
-	private void fillContactArea(String selectedItem)
-	{
-		contactArea.setText(guiData.findPerson(selectedItem).getPersonInfo());
-	}
-	
 	private void fillInfo(String selectedValue) //nameList method to fill info, parameter taken is id,name
 	{
 		String idVal = getSelectedID(selectedValue);
@@ -399,9 +493,17 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		nameText.setText(guiData.getTracer(idVal).getName());
 		statusText.setText(guiData.getTracer(idVal).getStatus());
 		phoneNumberText.setText(guiData.getTracer(idVal).getNumber());
+		fillContactBox(selectedValue);
+		Person original = new Person(nameText.getText().toString(), idText.getText().toString(), statusText.getText().toString(), phoneNumberText.getText().toString());
+		for(int i = 0; i < contactBox.getItemCount(); i++)
+		{
+			original.addContactID(contactBox.getItemAt(i).toString());
+			
+		}
+		setOriginalPerson(original);
 	}
 	
-	private void setViewRightPanel()
+	private void addToViewRightPanel()
 	{
 		//set up viewRightPanel by adding all the elements
 		viewRightPanel = new JPanel();
@@ -437,9 +539,9 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		NumberFormat integerFieldFormatter = NumberFormat.getIntegerInstance();
 		integerFieldFormatter.setMaximumFractionDigits(0);
 		integerFieldFormatter.setGroupingUsed(false);
-		idText = new JFormattedTextField(integerFieldFormatter);
+		idText = new JTextField();
 		idText.setFont(new Font("Times New Roman", Font.PLAIN, 16));
-		idText.setValue(121);
+		idText.setText("000000");
 		idText.setEditable(true);
 		idText.setForeground(Color.BLACK);
 		//idText.setBackground(Color.blue);
@@ -450,8 +552,8 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		idText.setLocation(new Point(30,10));
 		idLabel.setLabelFor(idText);
 		
-		nameText = new JFormattedTextField();
-		nameText.setValue("Default");
+		nameText = new JTextField();
+		nameText.setText("Default");
 		nameText.setEditable(true);
 		nameText.setForeground(Color.BLACK);
 		//nameText.setBackground(Color.YELLOW);
@@ -461,8 +563,8 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		nameText.setLocation(new Point(64,58));
 		nameLabel.setLabelFor(nameText);
 		
-		phoneNumberText = new JFormattedTextField(integerFieldFormatter);
-		phoneNumberText.setValue(0);
+		phoneNumberText = new JTextField();
+		phoneNumberText.setText("0");
 		phoneNumberText.setEditable(true);
 		phoneNumberText.setForeground(Color.BLACK);
 		//phoneNumberText.setBackground(Color.green);
@@ -473,8 +575,8 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		phoneLabel.setLabelFor(phoneNumberText);
 
 		
-		statusText = new JFormattedTextField();
-		statusText.setValue("Default");
+		statusText = new JTextField();
+		statusText.setText("Default");
 		statusText.setEditable(true);
 		statusText.setForeground(Color.BLACK);
 		//statusText.setBackground(Color.green);
@@ -483,5 +585,28 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		statusText.setBounds(new Rectangle(50, 124, 164, 20));
 		statusText.setLocation(new Point(64,124));
 		statusLabel.setLabelFor(statusText);
+	}
+	
+	private void setUpPanelBtn()
+	{
+		btnEditInfo.setBackground(Color.WHITE);
+		btnEditInfo.setBounds(30, 368, 117, 29);
+		viewRightPanel.add(btnEditInfo);
+		
+		btnAddContactInfo = new JButton("Add New Contact");
+		btnAddContactInfo.setBounds(170, 174, 134, 29);
+		viewRightPanel.add(btnAddContactInfo);
+		btnAddContactInfo.setVisible(false);
+		
+		btnCancel = new JButton("Cancel");
+		btnCancel.setBounds(10, 368, 86, 29);
+		viewRightPanel.add(btnCancel);
+		btnCancel.setVisible(false);
+		
+		btnSave = new JButton("Save");
+		btnSave.setBounds(102, 368, 86, 29);
+		viewRightPanel.add(btnSave);
+		scrollRightPane.setPreferredSize(viewRightPanel.getSize());
+		btnSave.setVisible(false);
 	}
 }
