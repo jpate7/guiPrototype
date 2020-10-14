@@ -97,15 +97,15 @@ public class MainPanel extends JPanel
 		
 		//configure the Jlabels on the right
 		idLabel = new JLabel("ID: ");
-		idLabel.setBounds(10, 10, 50, 50);
+		idLabel.setBounds(10, 10, 50, 30);
 		nameLabel = new JLabel("Name: ");
-		nameLabel.setBounds(10, 80, 50, 50);
+		nameLabel.setBounds(10, 40, 50, 30);
 		phoneLabel = new JLabel("Phone Number: ");
-		phoneLabel.setBounds(10, 160, 100, 50);
+		phoneLabel.setBounds(10, 70, 100, 30);
 		statusLabel = new JLabel("Status: ");
-		statusLabel.setBounds(10, 220, 50, 50);
+		statusLabel.setBounds(10, 100, 50, 30);
 		contactLabel = new JLabel("ID of Contacts: ");
-		contactLabel.setBounds(10, 250, 100, 50);
+		contactLabel.setBounds(10, 130, 100, 50);
 		
 		//set up JFormattedTextFields
 		NumberFormat integerFieldFormatter = NumberFormat.getIntegerInstance();
@@ -113,17 +113,27 @@ public class MainPanel extends JPanel
 		integerFieldFormatter.setGroupingUsed(false);
 		idText = new JFormattedTextField(integerFieldFormatter);
 		idText.setValue(121);
-		idText.setEditable(false);
-		idText.setForeground(Color.RED);
+		idText.setEditable(true);
+		idText.setForeground(Color.WHITE);
 		idText.setBackground(Color.blue);
 		idText.setLayout(null);
 		idText.setVisible(true);
-		idText.setBounds(70, 10, 50, 50);
-		
+		idText.setBounds(new Rectangle(200,30));
+		idText.setLocation(new Point(30,10));
 		idLabel.setLabelFor(idText);
 		
-		/*private JFormattedTextField nameText;
-		private JFormattedTextField phoneNumberText;
+		nameText = new JFormattedTextField();
+		nameText.setValue("Default");
+		nameText.setEditable(true);
+		nameText.setForeground(Color.WHITE);
+		nameText.setBackground(Color.YELLOW);
+		nameText.setLayout(null);
+		nameText.setBounds(new Rectangle(200,30));
+		nameText.setLocation(new Point(50,40));
+		nameLabel.setLabelFor(nameText);
+		
+		
+		/*private JFormattedTextField phoneNumberText;
 		private JFormattedTextField statusText;*/
 		
 		
@@ -135,6 +145,7 @@ public class MainPanel extends JPanel
 		viewRightPanel.add(idLabel);
 		viewRightPanel.add(idText);
 		viewRightPanel.add(nameLabel);
+		viewRightPanel.add(nameText);
 		viewRightPanel.add(statusLabel);
 		viewRightPanel.add(phoneLabel);
 		viewRightPanel.add(contactLabel);
