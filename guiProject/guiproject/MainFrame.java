@@ -15,7 +15,7 @@ public class MainFrame {
 		// TODO Auto-generated method stub
 		JFrame main = new JFrame("Contract Tracer");
 		main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		main.setSize(800, 600);
+		main.setSize(600, 600);
 		//main.getContentPane().setLayout(new FlowLayout);
 		main.getContentPane().add(new MainPanel());
 		main.setVisible(true);

@@ -162,16 +162,25 @@ public class DataManager
 		return temp;
 	}
 	
-	public String[] getAllContacts()
+	public String[] getAllContactsOf(Person P)
 	{
-		String[] temp = new String[tracers.size()];
-		int j = 0;
-		for(String i: tracers.keySet())
+		if(tracers.containsValue(P))
 		{
-			temp[j] = i;
-			j++;
+			String toReturn[] = new String[P.getContactSize()];
+	
+			Iterator<String> iter = P.Iterator();
+			int i = 0;
+			while(iter.hasNext())
+			{
+				toReturn[i] += iter.next();
+				i++;
+			}
+			
+			return toReturn;
 		}
-		return temp;
+		else
+			System.out.println("Person" + "(" + P.getName() + ") " + "is not a contact tracer so no contact to print");
+		return null;
 	}
 	
 	
