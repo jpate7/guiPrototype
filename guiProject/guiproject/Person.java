@@ -103,6 +103,16 @@ public class Person {
 		//initialize a new iterator to cycle Person contacts
 		return new ArrayListIterator<String>(contactID, contactID.size());
 	}
+	
+	public String getPersonInfo()
+	{
+		return "ID: " + id +"\n"+"Name: " + name +"\n" + "Status: " + status + "\n" + "Phone #: " + phone;
+	}
+	
+	public int getIdLen()
+	{
+		return id.length();
+	}
 	// string representation of this person
 	public String toString () 
 	{

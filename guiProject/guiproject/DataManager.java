@@ -1,6 +1,7 @@
 package guiproject;
 
 import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -34,6 +35,8 @@ public class DataManager
 			tracers.put(P.getId(), P);	//add Person P to tracers
 										//Person P's ID as HashKey 
 										//Person P reference as Hash value
+		
+
 	}
 	
 	//---------------------------------------------------------------------------------------------
@@ -150,6 +153,7 @@ public class DataManager
 		return null;
 	}
 	
+	
 	public Person[] getAllTracers()
 	{
 		Person[] temp = new Person[tracers.size()];
@@ -162,24 +166,23 @@ public class DataManager
 		return temp;
 	}
 	
-	public String[] getAllContactsOf(Person P)
-	{
-		if(tracers.containsValue(P))
-		{
-			String toReturn[] = new String[P.getContactSize()];
 	
-			Iterator<String> iter = P.Iterator();
-			int i = 0;
+	public ArrayList<String> getAllContactsOf(String C)
+	{
+		if(tracers.containsKey(C))
+		{
+			ArrayList<String> toReturn = new ArrayList<String>();
+	
+			Iterator<String> iter = tracers.get(C).Iterator();
 			while(iter.hasNext())
 			{
-				toReturn[i] += iter.next();
-				i++;
+				toReturn.add(iter.next());
 			}
 			
 			return toReturn;
 		}
 		else
-			System.out.println("Person" + "(" + P.getName() + ") " + "is not a contact tracer so no contact to print");
+			System.out.println("Person" + "(" + tracers.get(C).getName() + ") " + "is not a contact tracer so no contact to print");
 		return null;
 	}
 	
@@ -216,6 +219,7 @@ public class DataManager
 		}
 		
 	}
+
 	
 	//-----------------------------------------------------------------------------------------------
 	public Person inputFromKeyboard()
