@@ -15,8 +15,8 @@ public class MainPanel extends JPanel
 	private JPanel rightPanel;
 	private JPanel viewRightPanel;
 	
-	private DefaultListModel names;
-	private DefaultListModel ids;
+	private DefaultListModel<String> names;
+	private DefaultListModel<String> ids;
 	private JList nameList;
 	private JList idList;
 	
@@ -62,8 +62,8 @@ public class MainPanel extends JPanel
 		leftPanel.setBackground(Color.BLACK);
 		
 		//configure the list of the nameList 
-		names = new DefaultListModel();
-		ids = new DefaultListModel();
+		names = new DefaultListModel<String>();
+		ids = new DefaultListModel<String>();
 		Person[] data = guiData.getAllTracers();
 		for(int i = 0; i < guiData.getSize(); i++)
 		{
@@ -132,6 +132,18 @@ public class MainPanel extends JPanel
 		nameText.setLocation(new Point(50,40));
 		nameLabel.setLabelFor(nameText);
 		
+		phoneNumberText = new JFormattedTextField(integerFieldFormatter);
+		phoneNumberText.setValue(0);
+		phoneNumberText.setEditable(true);
+		phoneNumberText.setForeground(Color.WHITE);
+		phoneNumberText.setBackground(Color.green);
+		phoneNumberText.setLayout(null);
+		phoneNumberText.setBounds(new Rectangle(200,30));
+		phoneNumberText.setLocation(new Point(110,70));
+		phoneLabel.setLabelFor(phoneNumberText);
+
+		
+		
 		
 		/*private JFormattedTextField phoneNumberText;
 		private JFormattedTextField statusText;*/
@@ -148,6 +160,7 @@ public class MainPanel extends JPanel
 		viewRightPanel.add(nameText);
 		viewRightPanel.add(statusLabel);
 		viewRightPanel.add(phoneLabel);
+		viewRightPanel.add(phoneNumberText);
 		viewRightPanel.add(contactLabel);
 		
 		
