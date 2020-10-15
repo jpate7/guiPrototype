@@ -12,3 +12,9 @@
 /MainPanel$nameListSelectListener.class
 /MainPanel$btnSaveListener.class
 /MainPanel$btnCancelListener.class
+/MainPanel$btnAddContactInfo.class
+/MainPanel$btnAddContactInfo$btnCancelListener.class
+/MainPanel$btnAddContactInfo$btnEditInfoListener.class
+/MainPanel$btnAddContactInfo$btnSaveListener.class
+/MainPanel$btnAddContactInfo$contactBoxSelectListener.class
+/MainPanel$btnAddContactInfo$nameListSelectListener.class

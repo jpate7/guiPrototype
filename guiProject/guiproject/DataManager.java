@@ -166,7 +166,6 @@ public class DataManager
 		return temp;
 	}
 	
-	
 	public ArrayList<String> getAllContactsOf(String C)
 	{
 		if(tracers.containsKey(C))
@@ -195,6 +194,66 @@ public class DataManager
 	public int getSize()
 	{
 		return tracers.size();
+	}
+	
+	public boolean checkForTracer(Person P)
+	{
+		String temp;
+		for(String i:tracers.keySet())
+		{
+			temp = tracers.get(i).getId();
+			if(P.getId().equals(temp))
+			{
+				return true;
+			}
+		}
+		return false;
+		
+	}
+	
+	public Person getPersonFromGui(Person P)
+	{
+		String temp;
+		for(String i:tracers.keySet())
+		{
+			temp = tracers.get(i).getId();
+			if(P.getId().equals(temp))
+			{
+				return tracers.get(i);
+			}
+		}
+		return new Person();
+	}
+	
+	public void removeContactFromGui(Person P, String C)
+	{//removes the id of contact C from person P's(tracer) library of ids
+		
+		if(checkForTracer(P))
+		{
+			Iterator<String> iter = getPersonFromGui(P).Iterator();
+			while(iter.hasNext())
+			{
+				if(iter.next().equals(C))
+				{
+					getPersonFromGui(P).removeContactID(C);	//removes the contact from person
+					return;					//returns now that contact has been removed and there are no duplicates
+				}
+			}
+		}
+		else
+			System.out.println("Person" + "(" + getPersonFromGui(P).getName() + ") " + "is not a contact tracer or contact cannot be removed");
+		
+	}
+	
+	public void addContactFromGui(Person P, String C)	
+	{//add Person C(contact) id into the contact array collection stored in Person P(tracer)
+		
+		if(checkForTracer(P) && !(containsContact(P,C)))	//if tracers has Person P and P does not contain C already
+		{
+			getPersonFromGui(P).addContactID(C);		//add Person C's id to Person P's ID collection
+		}
+		else
+			System.out.println("Person" + "(" + getPersonFromGui(P).getName() + ") " + "is not a contact tracer or contact is already included!");
 	}
 	
 	

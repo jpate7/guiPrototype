@@ -53,7 +53,13 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	private JButton btnCancel;
 	private JButton btnSave;
 	
+	//private JOptionPane addContactWindow;
+	private JPanel contactPanel;
+	private JOptionPane contactOption;
+	
 	private Person original;
+	private Person addedContact;
+	private Person addedPerson;
 
 
 	
@@ -314,7 +320,9 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 
 		//implements actionListener for Cancel button to revert edits
 		btnCancel.addActionListener(new btnCancelListener());
-
+		
+		//implements actionListener for the Add New Contact button to add a new contact to a tracer
+		btnAddContactInfo.addActionListener(new btnAddContactInfo());
 	
 		
 	
@@ -322,7 +330,74 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	
 	//--------------------------------------FIRING LISTENERS-------------------------------------------------------------------------
 	
-	
+	//ActionListener for the "Add new Contact" Button
+	private class btnAddContactInfo implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{
+			contactOption = new JOptionPane();
+			contactPanel = new JPanel();
+			JTextField contactName = new JTextField("Name");
+			JTextField contactNumber = new JTextField("Number");
+			JTextField contactStatus = new JTextField("Status");
+			JTextField contactId = new JTextField("Id");
+			
+			JLabel nameOption = new JLabel("Name: ");
+			nameOption.setLabelFor(contactName);
+			JLabel numberOption = new JLabel("Number: ");
+			numberOption.setLabelFor(contactName);
+			JLabel statusOption = new JLabel("Status: ");
+			statusOption.setLabelFor(contactStatus);
+			JLabel IdOption = new JLabel("ID: ");
+			IdOption.setLabelFor(contactId);
+			
+			Object[] fields = {
+					nameOption, contactName,
+					numberOption, contactNumber,
+					statusOption, contactStatus,
+					IdOption, contactId
+			};
+			
+			/*contactPanel.add(nameOption);
+			contactPanel.add(contactName);
+			contactPanel.add(Box.createHorizontalStrut(20));
+			contactPanel.add(numberOption);
+			contactPanel.add(contactNumber);
+			contactPanel.add(Box.createVerticalStrut(20));
+			contactPanel.add(statusOption);
+			contactPanel.add(contactStatus);
+			contactPanel.add(Box.createVerticalStrut(20));
+			contactPanel.add(IdOption);
+			contactPanel.add(contactId);*/
+			
+			int result = JOptionPane.showConfirmDialog(null, fields,"Please Enter Contact Info", JOptionPane.OK_CANCEL_OPTION);
+			
+			if(result == JOptionPane.OK_OPTION)
+			{//if added contact is valid, add that contact to the current tracer and create a new tracer with contact info
+				//System.out.println(contactName.getText().toString());
+				
+				Person anotherTracer = new Person();
+				anotherTracer.setName(contactName.getText().toString());
+				anotherTracer.setNumber(contactNumber.getText().toString());
+				anotherTracer.setStatus(contactStatus.getText().toString());
+				anotherTracer.setId(contactId.getText().toString());
+				//System.out.println(anotherTracer);
+				//update contactBox with new id but not save
+				guiData.addContactFromGui(getOriginalPerson(), anotherTracer.getId());
+				guiData.addTracer(anotherTracer);
+				ArrayList<String> c = guiData.getAllContactsOf(getOriginalPerson().getId());
+				contactBox.setModel(new DefaultComboBoxModel(c.toArray()));
+				contactArea.setText(anotherTracer.getPersonInfo());
+				contactBox.setSelectedItem(anotherTracer.getId());
+				setAddedContact(anotherTracer);
+				
+			}
+			
+			
+			
+			
+		}
+	}
 	
 	
 	//ActionListener for the "Cancel" Button
@@ -339,7 +414,9 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			nameText.setEditable(false);
 			statusText.setEditable(false);
 			phoneNumberText.setEditable(false);
-			
+			guiData.removeContactFromGui(getOriginalPerson(), addedContact.getId());
+			guiData.removeTracer(addedContact);
+		
 			fillContactBox(original.getId());
 			contactArea.setText(guiData.getTracer(contactBox.getItemAt(0).toString()).getPersonInfo());
 			contactArea.setEditable(false);
@@ -437,6 +514,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			contactArea.setEditable(false);
 			
 			
+			
 	
 		}
 	}
@@ -455,6 +533,16 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	//---------------------HELPER FUNCTIONS------------------------------------------------------------------------------------
 	
 
+	private void setAddedContact(Person added)
+	{
+		addedContact = added;
+	}
+	
+	public Person getAddedContact()
+	{
+		return addedContact;
+	}
+	
 	
 	private void setOriginalPerson(Person old)
 	{
