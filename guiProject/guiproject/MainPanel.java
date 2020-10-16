@@ -21,9 +21,10 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	private JPanel rightPanel;
 	private JPanel viewRightPanel;
 	
-	private JList nameList;
+	private JList<String> nameList;
 	private JList idList;
 	//private JList contactList;
+	DefaultListModel listModel;
 	
 	private JScrollPane scrollRightPane;
 	private JScrollPane listScrollPane;
@@ -60,7 +61,12 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	private Person original;
 	private Person addedContact;
 	private Person addedPerson;
+	
+	private boolean cValue;
+	private boolean pValue;
 
+	private int checker;
+	private int listIndex = 0;
 
 	
 	//private JMenu menu;
@@ -88,16 +94,18 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		leftPanel.setBackground(Color.WHITE);
 		
 		//configure the list of the nameList
-		DefaultListModel<String> names = new DefaultListModel<String>();
+		listModel = new DefaultListModel<String>();
 		DefaultListModel<String> ids = new DefaultListModel<String>();
-		DefaultListModel<String> contacts = new DefaultListModel<String>();
+		//DefaultListModel<String> contacts = new DefaultListModel<String>();
 		ArrayList<Person> data = guiData.getAllTracers();
 		for(Person p: data)
 		{
-			names.addElement(p.getId() +", "+ p.getName());
+			listModel.addElement(p.getId() +", "+ p.getName());
 		}
-		idList = new JList(ids);
-		nameList = new JList(names);
+		//idList = new JList(ids);
+		nameList = new JList(listModel);
+	
+
 		
         
 	
@@ -305,9 +313,14 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		fillInfo(data.get(0).getId());
 		fillContactBox(data.get(0).getId());
 		contactArea.setText(guiData.getTracer(contactBox.getItemAt(0).toString()).getPersonInfo());
+		idText.setEditable(false);
+		nameText.setEditable(false);
+		statusText.setEditable(false);
+		phoneNumberText.setEditable(false);
+		contactArea.setEditable(false);
 		
 		//fill all the right panel based on selectedItem from nameList
-		nameList.addListSelectionListener(new nameListSelectListener());
+		//nameList.addListSelectionListener(new nameListSelectListener());
 		
 		//adds the contactArea Text based on the selected item
 		contactBox.addActionListener(new contactBoxSelectListener());	
@@ -324,6 +337,22 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		//implements actionListener for the Add New Contact button to add a new contact to a tracer
 		btnAddContactInfo.addActionListener(new btnAddContactInfo());
 	
+		checker  = 0;
+		listIndex = 0;
+		
+		nameList.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				fillInfo(nameList.getSelectedValue().toString());
+				listIndex = nameList.getSelectedIndex();
+				rightPanel.setVisible(true);
+				idText.setEditable(false);
+				nameText.setEditable(false);
+				statusText.setEditable(false);
+				phoneNumberText.setEditable(false);
+				contactArea.setEditable(false);
+			}
+		});
 		
 	
 	}
@@ -383,12 +412,8 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 				anotherTracer.setId(contactId.getText().toString());
 				//System.out.println(anotherTracer);
 				//update contactBox with new id but not save
-				guiData.addContactFromGui(getOriginalPerson(), anotherTracer.getId());
 				guiData.addTracer(anotherTracer);
-				ArrayList<String> c = guiData.getAllContactsOf(getOriginalPerson().getId());
-				contactBox.setModel(new DefaultComboBoxModel(c.toArray()));
-				contactArea.setText(anotherTracer.getPersonInfo());
-				contactBox.setSelectedItem(anotherTracer.getId());
+				contactArea.setText("Added Contact: " + anotherTracer.getPersonInfo());
 				setAddedContact(anotherTracer);
 				
 			}
@@ -400,24 +425,28 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	}
 	
 	
-	//ActionListener for the "Cancel" Button
+	//ActionListener for the "Cancel" Button---------------------------------------------------------------------
 	private class btnCancelListener implements ActionListener
 	{
 	
 		public void actionPerformed(ActionEvent e)
 		{
-			idText.setText(original.getId());
-			nameText.setText(original.getName());
-			statusText.setText(original.getStatus());
-			phoneNumberText.setText(original.getNumber());
+			idText.setText(getOriginalPerson().getId());
+			nameText.setText(getOriginalPerson().getName());
+			statusText.setText(getOriginalPerson().getStatus());
+			phoneNumberText.setText(getOriginalPerson().getNumber());
 			idText.setEditable(false);
 			nameText.setEditable(false);
 			statusText.setEditable(false);
 			phoneNumberText.setEditable(false);
-			guiData.removeContactFromGui(getOriginalPerson(), addedContact.getId());
-			guiData.removeTracer(addedContact);
+			if(getAddedContactSet())
+			{
+				guiData.removeTracer(addedContact);
+				isAddedContactSet(false);
+			}
+			
 		
-			fillContactBox(original.getId());
+			//fillContactBox(original.getId());
 			contactArea.setText(guiData.getTracer(contactBox.getItemAt(0).toString()).getPersonInfo());
 			contactArea.setEditable(false);
 			
@@ -425,65 +454,105 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			btnSave.setVisible(false);
 			btnEditInfo.setVisible(true);
 			btnAddContactInfo.setVisible(false);
+			nameList.enable();
+			
 			
 		}
 	}
 	
 	
-	//ActionListener for the "Save" JButton
+	//ActionListener for the "Save" JButton---------------------------------------------------------------------
 	private class btnSaveListener implements ActionListener
 	{
 		private void updateList()
-		{
-			DefaultListModel names = new DefaultListModel();
+		{//update the list with info on the new person
+			/*DefaultListModel<String> names = new DefaultListModel<String>();
 			ArrayList<Person> data = guiData.getAllTracers();
-			for(Person p: data)
+			for(Person p: data) 
 			{
 				names.addElement(p.getId() +", "+ p.getName());
 			}
-			nameList.setModel(names);
+			
+			nameList = new JList(names);*/
+			
+			/*DefaultListModel listModel = (DefaultListModel)nameList.getModel();
+	        listModel.clear();
+	        ArrayList<Person> data = guiData.getAllTracers();
+			for(Person p: data) 
+			{
+				listModel.addElement(p.getId() +", "+ p.getName());
+			}
+			nameList.updateUI();
+			nameList = new JList(listModel);*/
+			
+			
+			//listModel.clear();
+			listModel.setElementAt(getOriginalPerson().getId() +", "+ getOriginalPerson().getName(), listIndex);
+			nameList.setModel(listModel);
+			
+			
+			
+			
+			
 		}
 		
 		
 		
 		public void actionPerformed(ActionEvent e)
 		{
-			Person old_P = original;
+			
 			Person new_P = new Person();
 			new_P.setId(idText.getText().toString());
 			new_P.setName(nameText.getText().toString());
 			new_P.setStatus(statusText.getText().toString());
 			new_P.setNumber(phoneNumberText.getText().toString());
 			
+			
+			ArrayList<String> c = guiData.getAllContactsOf(getOriginalPerson().getId());
+			//System.out.println(c);
+			if(getAddedContactSet())
+			{
+				c.add(getAddedContact().getId());
+				isAddedContactSet(false);
+			
+			}
+			
+			contactBox.setModel(new DefaultComboBoxModel(c.toArray()));
+			contactArea.setText(guiData.getTracer(c.get(0)).getPersonInfo());
 			for(int i = 0; i < contactBox.getItemCount(); i++)
 			{
 				new_P.addContactID(contactBox.getItemAt(i).toString());
 				
 			}
-			if(original.getId().equals(new_P.getId()))
+			
+			if(getOriginalPerson().getId().equals(new_P.getId()))
 			{
 				guiData.updateTracer(new_P);
 				setOriginalPerson(new_P);
 			}
-			/*else if(!(old_P.getId().equals(new_P.getId()) && guiData.containsTracer(guiData.findPerson(new_P.getId()))))
+			else if(!(getOriginalPerson().getId().equals(new_P.getId()) && guiData.containsTracer(guiData.findPerson(new_P.getId()))))
 			{
-				
-			}*/
+				JOptionPane errorPopUp = new JOptionPane("Error");
+				errorPopUp.showMessageDialog(null, "This ID is already taken!");
+				errorPopUp.setOptionType(errorPopUp.DEFAULT_OPTION);
+				idText.setText(getOriginalPerson().getId().toString());
+			}
 			else
 			{
 				guiData.addTracer(new_P);
-				guiData.removeTracer(original);
+				guiData.removeTracer(getOriginalPerson());
 				setOriginalPerson(new_P);
 			}
 			btnCancel.setVisible(false);
 			btnSave.setVisible(false);
 			btnEditInfo.setVisible(true);
 			btnAddContactInfo.setVisible(false);
+			nameList.enable();
 			updateList();
 		}
 	}
 	
-	//ActionListener for the "Edit Info" JButton
+	//ActionListener for the "Edit Info" JButton-------------------------------------------------------------
 	private class btnEditInfoListener implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) {
@@ -496,16 +565,18 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			statusText.setEditable(true);
 			phoneNumberText.setEditable(true);
 			//contactArea.setEditable(true);
+			nameList.disable();
 		}
 	}
 	
-	//ListSelectionListener for the "nameList" JLIst on the left panel
+	//ListSelectionListener for the "nameList" JLIst on the left panel---------------------------------------------------------------
 	private class nameListSelectListener implements ListSelectionListener
 	{
 		
 		public void valueChanged(ListSelectionEvent e) 
-		{
+		{//is not used 
 			fillInfo(nameList.getSelectedValue().toString());
+			listIndex = nameList.getSelectedIndex();
 			rightPanel.setVisible(true);
 			idText.setEditable(false);
 			nameText.setEditable(false);
@@ -518,8 +589,10 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	
 		}
 	}
+	//-------------------------------------
 	
-	//ActionListener for the "contactBox" JComboBox 
+	
+	//ActionListener for the "contactBox" JComboBox-----------------------------------------------------------------------------------
 	private class contactBoxSelectListener implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e)
@@ -530,29 +603,75 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	
 	
 	
-	//---------------------HELPER FUNCTIONS------------------------------------------------------------------------------------
+	//---------------------CURRENT PERSON HELPER FUNCTIONS------------------------------------------------------------------------------------
 	
 
 	private void setAddedContact(Person added)
 	{
-		addedContact = added;
+		if(!(added == null))
+		{
+			addedContact = added;
+			isAddedContactSet(true);
+		}
+		else
+		{
+			System.out.println("adding null reference");
+		}
 	}
 	
 	public Person getAddedContact()
 	{
-		return addedContact;
+		if(getAddedContactSet())
+			return addedContact;
+		else
+		{
+			System.out.println("Error");
+			return null;
+		}
+	}
+	
+	private void isAddedContactSet(boolean val) {
+		cValue = val;
+	}
+	
+	private boolean getAddedContactSet()
+	{
+		return cValue;
 	}
 	
 	
 	private void setOriginalPerson(Person old)
 	{
-		original = old;
+		if(!(old == null))
+		{
+			original = old;
+			isOriginalSet(true);
+		}
+		else
+		{
+			System.out.println("adding null reference");
+		}
 	}
 	
 	public Person getOriginalPerson()
 	{
-		return original;
+		if(getOriginalSet())
+			return original;
+		else
+		{
+			System.out.println("Error");
+			return null;
+		}
 	}
+	private void isOriginalSet(boolean val) {
+		pValue = val;
+	}
+	private boolean getOriginalSet()
+	{
+		return pValue;
+	}
+	
+	//----------------------------------FIRING HELPERS--------------------------------
 	
 	public void fillContactBox(String selectedValue)
 	{
@@ -582,15 +701,11 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		statusText.setText(guiData.getTracer(idVal).getStatus());
 		phoneNumberText.setText(guiData.getTracer(idVal).getNumber());
 		fillContactBox(selectedValue);
-		Person original = new Person(nameText.getText().toString(), idText.getText().toString(), statusText.getText().toString(), phoneNumberText.getText().toString());
-		for(int i = 0; i < contactBox.getItemCount(); i++)
-		{
-			original.addContactID(contactBox.getItemAt(i).toString());
-			
-		}
+		Person original = guiData.getTracer(idVal);
 		setOriginalPerson(original);
 	}
 	
+	//-------------------------------CONSTRUT FILLERS---------------------------------------
 	private void addToViewRightPanel()
 	{
 		//set up viewRightPanel by adding all the elements
