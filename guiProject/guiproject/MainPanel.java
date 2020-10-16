@@ -22,7 +22,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	private JPanel viewRightPanel;
 	
 	private JList<String> nameList;
-	private JList idList;
+	//private JList idList;
 	//private JList contactList;
 	DefaultListModel listModel;
 	
@@ -51,11 +51,15 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	private JMenu Options;
 	private JMenuItem AddTracer;
 	private JMenuItem DeleteTracer;
+	private JMenuItem OpenFile;
+	private JMenuItem Save_N_Close;
+	private JMenuItem Exit;
 	
 	private JButton btnEditInfo;
 	private JButton btnAddContactInfo;
 	private JButton btnCancel;
 	private JButton btnSave;
+	private JButton btnDeleteTracer;
 	
 	
 	private JPanel deleteTPanel;
@@ -135,6 +139,12 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		File.setBackground(Color.white);
 		File.setForeground(SystemColor.textHighlight);
 		menuBar.add(File);
+		OpenFile = new JMenuItem("Open a File");
+		File.add(OpenFile);
+		Save_N_Close = new JMenuItem("Save and Close Window");
+		File.add(Save_N_Close);
+		Exit = new JMenuItem("Exit Program");
+		File.add(Exit);
 		
 		Options = new JMenu("Options");
 		Options.setBackground(Color.white);
@@ -189,21 +199,6 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		
 		//adds the necessary elements to the right Viewing panels, which in in a scrollRight Pane
 		addToViewRightPanel();
-		/*//set up viewRightPanel by adding all the elements
-		viewRightPanel = new JPanel();
-		viewRightPanel.setLayout(null);
-		viewRightPanel.setBackground(Color.white);
-		viewRightPanel.add(idLabel);
-		viewRightPanel.add(idText);
-		viewRightPanel.add(nameLabel);
-		viewRightPanel.add(nameText);
-		viewRightPanel.add(statusLabel);
-		viewRightPanel.add(statusText);
-		viewRightPanel.add(phoneLabel);
-		viewRightPanel.add(phoneNumberText);
-		viewRightPanel.add(contactLabel);
-		viewRightPanel.add(contactBox);
-		viewRightPanel.add(contactScrollPane);*/
 	
 		
 		
@@ -249,6 +244,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		phoneNumberText.setEditable(false);
 		contactArea.setEditable(false);
 		
+		
 		//fill all the right panel based on selectedItem from nameList
 		//nameList.addListSelectionListener(new nameListSelectListener());
 		nameList.addMouseListener(new MouseAdapter() {
@@ -259,10 +255,19 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		});
 		
 		//implements the "Add a Tracer" option of the Menu based on actionPerformed
-		AddTracer.addActionListener(new AddTracerListener());
+		AddTracer.addActionListener(new MenuAddTracerListener());
 		
 		//implements the "Delete Tracer" option of the Menu based on actionPerformed
-		DeleteTracer.addActionListener(new DeleteTracerListener());
+		DeleteTracer.addActionListener(new MenuDeleteTracerListener());
+		
+		//implements the "Open A File" option of the Menu based on actionPerformed
+		OpenFile.addActionListener(new MenuOpenFileListener());
+		
+		//implements the "Save and Close" option of the Menu based on actionPerformed
+		Save_N_Close.addActionListener(new MenuSave_N_CloseListener());
+		
+		//implements the "Exit" option of the Menu based on actionPerformed
+		Exit.addActionListener(new MenuExitListener());
 		
 		//adds the contactArea Text based on the selected item
 		contactBox.addActionListener(new contactBoxSelectListener());	
@@ -278,6 +283,10 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		
 		//implements actionListener for the Add New Contact button to add a new contact to a tracer
 		btnAddContactInfo.addActionListener(new btnAddContactInfo());
+		
+		//implements the "Delete Tracer" button on the rightPanel
+		btnDeleteTracer.addActionListener(new btnDeleteTracerListener());
+		
 	
 		checker  = 0;
 		
@@ -287,9 +296,82 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	
 	
 	
-	//--------------------------------------FIRING LISTENERS-------------------------------------------------------------------------
+	//--------------------------------------FIRING LISTENERS-------------------------------------------------------------------------------------------------------------------------------
 	
-	private class DeleteTracerListener implements ActionListener
+	//implements the listener for the "Exit" menu Item--------------------------------------
+	private class MenuExitListener implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{//immediately exits program without saving
+			System.exit(-1);
+		}
+	}
+	
+	//implements the listener for the "Open A File" menu Item---------------------------------
+	private class MenuOpenFileListener implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{
+
+			JFileChooser jfc = new JFileChooser("./");
+			int returnValue = jfc.showOpenDialog(null);
+			if (returnValue == JFileChooser.APPROVE_OPTION) 
+			{
+				String selectedFile = jfc.getSelectedFile().toString();
+				if(guiData.getReadFileName().equals(selectedFile))
+					JOptionPane.showMessageDialog(null, "File already open");
+				else
+					guiData.readFrom(selectedFile);
+				
+			}
+
+		}
+	}
+	
+	//implements the listener for the "Save and Close" menu Item---------------------------------
+		private class MenuSave_N_CloseListener implements ActionListener
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				
+			}
+		}
+	
+	
+	
+	//implements the listener for the "delete tracer" button ------------------------------------------------------
+	private class btnDeleteTracerListener implements ActionListener
+	{
+		
+		public void updateList()
+		{
+			listModel.removeElementAt(listIndex);
+			nameList.setModel(listModel);
+			fillInfo(listModel.get(0).toString());
+		}
+		
+		public void actionPerformed(ActionEvent e)
+		{
+			//first, use a JOptionPane to ask if they want to delete the tracer
+			
+			String[] customOption = {
+					"Yes, Delete Tracer","No, Go Back"
+			};
+			int result = JOptionPane.showOptionDialog(null, "Are you sure you want to delete this Tracer", "Confirm Delete",
+					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, customOption, customOption[0]);
+			
+			if(result == JOptionPane.YES_OPTION)
+			{
+				guiData.removeTracer(getOriginalPerson());
+				guiData.deleteContactFromAllTracers(getOriginalPerson().getId());
+				updateList();
+			}
+		}
+	}
+	
+	
+	//implements the listener for the Delete Tracer menu item------------------------------------------------------------------
+	private class MenuDeleteTracerListener implements ActionListener
 	{
 		public void updateList(String target)
 		{//update nameList after delete
@@ -316,7 +398,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			if(result == JOptionPane.YES_OPTION)
 			{
 				Person toDelete = guiData.findPerson(tracerId.getText().toString());
-				if(toDelete != null)
+				if(toDelete != null)	//if person toDelete exist
 				{
 					guiData.removeTracer(toDelete);
 					updateList(toDelete.getId() + ", " + toDelete.getName());
@@ -333,7 +415,8 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		}
 	}
 	
-	private class AddTracerListener implements ActionListener
+	//implements the listener for the "Add A Tracer" menu Item-------------------------------------------------------------------
+	private class MenuAddTracerListener implements ActionListener
 	{
 		
 		public void updateList(Person element)
@@ -373,16 +456,21 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			int result = JOptionPane.showConfirmDialog(null, fields,"Please Enter Contact Info", JOptionPane.OK_CANCEL_OPTION);
 			if(result == JOptionPane.OK_OPTION)
 			{
-				Person addedTracer = new Person();
-				addedTracer.setName(tracerName.getText().toString());
-				addedTracer.setNumber(tracerNumber.getText().toString());
-				addedTracer.setStatus(tracerStatus.getText().toString());
-				addedTracer.setId(tracerId.getText().toString());
-				System.out.println(addedTracer);
-				
-				guiData.addTracer(addedTracer);
-				JOptionPane.showMessageDialog(null,"ID: " + addedTracer.getId() +  " is now added as a Tracer");
-				updateList(addedTracer);
+				if(!(guiData.containsTracer(guiData.findPerson(tracerId.getText().toString()))))	//if added tracer exist or not
+				{
+					Person addedTracer = new Person();
+					addedTracer.setName(tracerName.getText().toString());
+					addedTracer.setNumber(tracerNumber.getText().toString());
+					addedTracer.setStatus(tracerStatus.getText().toString());
+					addedTracer.setId(tracerId.getText().toString());
+					System.out.println(addedTracer);
+					
+					guiData.addTracer(addedTracer);
+					JOptionPane.showMessageDialog(null,"ID: " + addedTracer.getId() +  " is now added as a Tracer");
+					updateList(addedTracer);
+				}
+				else
+					JOptionPane.showMessageDialog(null,"ID: " + tracerId.getText() +  " already exists as a Tracer");
 
 			}
 			
@@ -391,7 +479,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	
 	
 	
-	//substitutes the calls from the MouseClicked of "nameList"-------------------------------------------------------
+	//substitutes the calls from the MouseClicked of "nameList"----------------------------------------------------------
 	private void nameListMouseEvent(MouseEvent e)
 	{
 		fillInfo(nameList.getSelectedValue().toString());
@@ -451,27 +539,30 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			{//if added contact is valid, add that contact to the current tracer and create a new tracer with contact info
 				//System.out.println(contactName.getText().toString());
 				
-				Person anotherTracer = new Person();
-				anotherTracer.setName(contactName.getText().toString());
-				anotherTracer.setNumber(contactNumber.getText().toString());
-				anotherTracer.setStatus(contactStatus.getText().toString());
-				anotherTracer.setId(contactId.getText().toString());
-				//System.out.println(anotherTracer);
-				//update contactBox with new id but not save
-				guiData.addTracer(anotherTracer);
-				contactArea.setText("Added Contact: " + anotherTracer.getPersonInfo());
-				setAddedContact(anotherTracer);
-				
+				if(!(guiData.containsContact(getOriginalPerson(), contactId.getText().toString())))	//if added contact exist or not
+				{
+					Person anotherTracer = new Person();
+					anotherTracer.setName(contactName.getText().toString());
+					anotherTracer.setNumber(contactNumber.getText().toString());
+					anotherTracer.setStatus(contactStatus.getText().toString());
+					anotherTracer.setId(contactId.getText().toString());
+					//System.out.println(anotherTracer);
+					//update contactBox with new id but not save
+					guiData.addTracer(anotherTracer);
+					contactArea.setText("Added Contact: " + anotherTracer.getPersonInfo());
+					setAddedContact(anotherTracer);
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(null, "ID: " + contactId.getText() +  " is already added as a Contact");
+				}
 			}
-			
-			
-			
-			
 		}
 	}
+		
 	
 	
-	//ActionListener for the "Cancel" Button---------------------------------------------------------------------
+	//ActionListener for the "Cancel" Button------------------------------------------------------------------------------
 	private class btnCancelListener implements ActionListener
 	{
 	
@@ -500,6 +591,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			btnSave.setVisible(false);
 			btnEditInfo.setVisible(true);
 			btnAddContactInfo.setVisible(false);
+			btnDeleteTracer.setVisible(true);
 			nameList.enable();
 			
 			
@@ -589,17 +681,19 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			btnSave.setVisible(false);
 			btnEditInfo.setVisible(true);
 			btnAddContactInfo.setVisible(false);
+			btnDeleteTracer.setVisible(true);
 			disableTextFields();
 			nameList.enable();
 			updateList();
 		}
 	}
 	
-	//ActionListener for the "Edit Info" JButton-------------------------------------------------------------
+	//ActionListener for the "Edit Info" JButton---------------------------------------------------------------------
 	private class btnEditInfoListener implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) {
 			btnEditInfo.setVisible(false);
+			btnDeleteTracer.setVisible(false);
 			btnSave.setVisible(true);
 			btnCancel.setVisible(true);
 			btnAddContactInfo.setVisible(true);
@@ -612,7 +706,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		}
 	}
 	
-	//ListSelectionListener for the "nameList" JLIst on the left panel---------------------------------------------------------------
+	//ListSelectionListener for the "nameList" JLIst on the left panel----------------------------------------------------
 	private class nameListSelectListener implements ListSelectionListener
 	{
 		
@@ -632,7 +726,6 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	
 		}
 	}
-	//-------------------------------------
 	
 	
 	//ActionListener for the "contactBox" JComboBox-----------------------------------------------------------------------------------
@@ -643,10 +736,13 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			contactArea.setText(guiData.findPerson(contactBox.getSelectedItem().toString()).getPersonInfo());
 		}
 	}
+	//--------------------------END FIRING CLASSES--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
 	
 	
-	//---------------------CURRENT PERSON HELPER FUNCTIONS------------------------------------------------------------------------------------
+	
+	
+	//---------------------CURRENT PERSON HELPER FUNCTIONS----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
 
 	private void setAddedContact(Person added)
@@ -714,7 +810,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		return pValue;
 	}
 	
-	//----------------------------------FIRING HELPERS--------------------------------
+	//----------------------------------FIRING HELPERS--------------------------------------------------------------------------------------------------------------------------
 	
 	private void disableTextFields()
 	{
@@ -727,8 +823,8 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	
 	public void fillContactBox(String selectedValue)
 	{
-		String tempId = getSelectedID(selectedValue);
-		ArrayList<String> c = guiData.getAllContactsOf(tempId.toString());
+		//String tempId = getSelectedID(selectedValue);
+		ArrayList<String> c = guiData.getAllContactsOf(selectedValue.toString());
 		if(c.size() == 0)
 		{//no ids
 			contactBox.setModel(new DefaultComboBoxModel());
@@ -758,15 +854,15 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	{
 		String idVal = getSelectedID(selectedValue);
 		idText.setText(idVal);
-		nameText.setText(guiData.getTracer(idVal).getName());
-		statusText.setText(guiData.getTracer(idVal).getStatus());
-		phoneNumberText.setText(guiData.getTracer(idVal).getNumber());
-		fillContactBox(selectedValue);
-		Person original = guiData.getTracer(idVal);
-		setOriginalPerson(original);
+		Person origin = guiData.getTracer(idVal);
+		nameText.setText(origin.getName());
+		statusText.setText(origin.getStatus());
+		phoneNumberText.setText(origin.getNumber());
+		fillContactBox(idVal);
+		setOriginalPerson(origin);
 	}
 	
-	//-------------------------------CONSTRUT FILLERS---------------------------------------
+	//-------------------------------CONSTRUTOR FILLERS------------------------------------------------------------------------------------------------------------------------------------------
 	private void addToViewRightPanel()
 	{
 		//set up viewRightPanel by adding all the elements
@@ -872,5 +968,10 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		viewRightPanel.add(btnSave);
 		scrollRightPane.setPreferredSize(viewRightPanel.getSize());
 		btnSave.setVisible(false);
+		
+		btnDeleteTracer = new JButton("Delete Tracer");
+		btnDeleteTracer.setBounds(213, 368, 117, 29);
+		viewRightPanel.add(btnDeleteTracer);
+		btnDeleteTracer.setVisible(true);
 	}
 }

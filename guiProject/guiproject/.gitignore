@@ -21,3 +21,9 @@
 /MainPanel$AddTracerOption.class
 /MainPanel$AddTracerListener.class
 /MainPanel$DeleteTracerListener.class
+/MainPanel$btnDeleteTracerListener.class
+/MainPanel$MenuExitListener.class
+/MainPanel$MenuAddTracerListener.class
+/MainPanel$MenuDeleteTracerListener.class
+/MainPanel$MenuOpenFileListener.class
+/MainPanel$MenuSave_N_CloseListener.class

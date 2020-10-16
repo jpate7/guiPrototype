@@ -19,6 +19,9 @@ public class DataManager
 	//private final int MAX_TRACERS = 26;
 	private Map<String, Person> tracers;	//Key: String ID	Value: Person references
 	
+	//GuiHelper
+	private String ReadFileName;
+	
 	public DataManager()
 	{ 
 		tracers = new HashMap<String, Person>();
@@ -268,6 +271,11 @@ public class DataManager
 			System.out.println("Person" + "(" + temp.getName() + ") " + "is not a contact tracer or contact is already included!");
 	}
 	
+	public String getReadFileName()
+	{
+		return ReadFileName;
+	}
+	
 	
 	//---------------------------------------------------------------------------------------------
 	
@@ -383,12 +391,15 @@ public class DataManager
 	public void readFrom(String file)
 	{
 		readFile(file);
+		
 	}
+	
 
 	private void readFile(String fileName) {
 		BufferedReader lineReader = null;
 		try {
 			FileReader fr = new FileReader(fileName);
+			ReadFileName = fileName;
 			lineReader = new BufferedReader(fr);
 			String line = null;
 			while ((line = lineReader.readLine())!=null)
