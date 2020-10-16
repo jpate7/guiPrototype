@@ -318,11 +318,26 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			if (returnValue == JFileChooser.APPROVE_OPTION) 
 			{
 				String selectedFile = jfc.getSelectedFile().toString();
-				if(guiData.getReadFileName().equals(selectedFile))
-					JOptionPane.showMessageDialog(null, "File already open");
+				System.out.println(jfc.getSelectedFile().getName());
+				if(guiData.getReadFileName().equals(jfc.getSelectedFile().getName()))
+					JOptionPane.showMessageDialog(null, "File is already open");
 				else
-					guiData.readFrom(selectedFile);
-				
+				{
+					guiData = new DataManager();
+					guiData.readFrom(jfc.getSelectedFile().getName().toString());
+					listModel.clear();
+					//DefaultListModel<String> ids = new DefaultListModel<String>();
+					//DefaultListModel<String> contacts = new DefaultListModel<String>();
+					ArrayList<Person> data = guiData.getAllTracers();
+					for(Person p: data)
+					{
+						listModel.addElement(p.getId() +", "+ p.getName());
+					}
+					//idList = new JList(ids);
+					nameList.setModel(listModel);
+					fillInfo(listModel.getElementAt(0).toString());
+					
+				}
 			}
 
 		}
@@ -332,8 +347,10 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		private class MenuSave_N_CloseListener implements ActionListener
 		{
 			public void actionPerformed(ActionEvent e)
-			{
-				
+			{//outputs the saved and edited data to a text document;
+				guiData.writeFile();
+				JOptionPane.showMessageDialog(null, "Data is saved in the Output file");
+				System.exit(-1);
 			}
 		}
 	
@@ -423,6 +440,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		{
 			listModel.addElement(element.getId().toString()+", "+element.getName());
 			nameList.setModel(listModel);
+			
 		}
 		
 		
@@ -854,7 +872,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	{
 		String idVal = getSelectedID(selectedValue);
 		idText.setText(idVal);
-		Person origin = guiData.getTracer(idVal);
+		Person origin = guiData.findPerson(idVal);
 		nameText.setText(origin.getName());
 		statusText.setText(origin.getStatus());
 		phoneNumberText.setText(origin.getNumber());

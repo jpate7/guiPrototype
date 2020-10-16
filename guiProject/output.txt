@@ -1,0 +1,3 @@
+ID: 000002; Name: Abraham; Phone #: 1236783456; Status: is safe; ID of Contacts: [000001, ]
+ID: 000001; Name: Lexi; Phone #: 1234567845; Status: is safe; ID of Contacts: [000002, ]
+ID: 000323; Name: Jay; Phone #: 3432343233; Status: is Safe; ID of Contacts: []
