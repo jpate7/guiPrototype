@@ -185,6 +185,15 @@ public class DataManager
 		return null;
 	}
 	
+	public void deleteContactFromAllTracers(String C)
+	{
+		for(String i: tracers.keySet())
+		{
+			if(containsContact(tracers.get(i), C))
+				tracers.get(i).removeContactID(C);
+		}
+	}
+	
 	
 	public Person getTracer(String C)
 	{
