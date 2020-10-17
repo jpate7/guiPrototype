@@ -194,7 +194,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		
 		
 		contactBox.setFont(new Font("Lucida Grande", Font.PLAIN, 14));
-		contactBox.setBounds(5, 174, 171, 27);
+		contactBox.setBounds(5, 185, 171, 27);
 		
 
 		
@@ -239,10 +239,9 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		//add the two panes to this JPanel
 		dataSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
 		dataSplit.setBackground(new Color(255, 240, 245));
-		dataSplit.setDividerSize(8);
+		dataSplit.setDividerSize(7);
 		dataSplit.setDividerLocation(MAIN_X/3);
 		dataSplit.setPreferredSize(new Dimension(MAIN_X,MAIN_Y));
-		this.setLocation(new Point(0,0));
 		this.setPreferredSize(dataSplit.getPreferredSize());
 		this.add(dataSplit);
 		
@@ -423,7 +422,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		{//delete Tracer by ID
 			deleteTPanel = new JPanel();
 			JTextField tracerId = new JTextField(10);
-			JLabel IdOption = new JLabel("ID: Enter 6-Digit ID, ex:xxx123");
+			JLabel IdOption = new JLabel("Enter 6-Digit ID: ");
 			IdOption.setLabelFor(tracerId);
 			deleteTPanel.add(IdOption);
 			deleteTPanel.add(tracerId);
@@ -534,7 +533,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			};
 
 			int tempResult = 0, tempId;
-			boolean idExam = false, numExam = false, failedStatus;
+			boolean idExam = false, numExam = false, failedStatus = false;
 			do
 			{
 				try
@@ -556,7 +555,9 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 								Person addedTracer = new Person();
 								addedTracer.setName(tracerName.getText().toString());
 								addedTracer.setNumber(tracerNumber.getText().toString());
+								
 								String temp = tracerStatus.getText().toString();
+								failedStatus = false;
 								if(temp.equals("1"))
 								{
 									addedTracer.setStatus("Infected");
@@ -593,10 +594,9 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 				}
 				catch(Exception j)
 				{
-					failedStatus = false;
-					JOptionPane.showMessageDialog(null, "Error has occured, Please enter a 6-Digit ID \nand a 10-Digit Phone Number");
+					JOptionPane.showMessageDialog(null, "Error has occured, Please enter a 6-Digit ID \nand a 10-Digit Phone Number\nand a valid Status identifier(-1,0,1)");
 				}
-			}while((idExam || numExam) && (tempResult == JOptionPane.OK_OPTION));
+			}while((idExam || numExam || failedStatus) && (tempResult == JOptionPane.OK_OPTION));
 			
 
 
@@ -643,30 +643,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		rightPanel.setVisible(true);
 		idText.setEditable(false);
 		nameText.setEditable(false);
-		statusText.setEditable(false);
-		//Enumeration<AbstractButton> enumerate = buttonGroup.getElements();
-		
-		/*if(getOriginalPerson().getStatus().equals("Pending"))
-		{
-			PendingRadio.setEnabled(true);
-			InfectedRadio.setEnabled(false);
-			NotInfectedRadio.setEnabled(false);
-		}
-		else if(getOriginalPerson().getStatus().equals("Infected"))
-		{
-			InfectedRadio.setEnabled(true);
-			NotInfectedRadio.setEnabled(false);
-			PendingRadio.setEnabled(false);
-		}
-		else if(getOriginalPerson().getStatus().equals("Not Infected"))
-		{
-			NotInfectedRadio.setEnabled(true);
-			PendingRadio.setEnabled(false);
-			InfectedRadio.setEnabled(false);
-		}
-		else
-			System.out.println("Error!");*/
-			
+		statusText.setEditable(false);	
 		phoneNumberText.setEditable(false);
 		contactArea.setEditable(false);
 		
@@ -731,7 +708,9 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 								Person anotherTracer = new Person();
 								anotherTracer.setName(contactName.getText().toString());
 								anotherTracer.setNumber(contactNumber.getText().toString());
+								
 								String temp = contactStatus.getText().toString();
+								failedStatus = false;
 								if(temp.equals("1"))
 								{
 									anotherTracer.setStatus("Infected");
@@ -766,7 +745,6 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 				}
 				catch(Exception j)
 				{
-					failedStatus = false;
 					JOptionPane.showMessageDialog(null, "Error has occured, Please enter a 6-Digit ID \nand a 10-Digit Phone Number\nand a valid Status identifier(-1,0,1)");
 				}
 			}while((idExam || numExam || failedStatus) && (tempResult == JOptionPane.OK_OPTION));
@@ -1203,7 +1181,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		statusLabel = new JLabel("Status: ");
 		statusLabel.setBounds(10, 119, 95, 30);
 		contactLabel = new JLabel("ID of Contacts: ");
-		contactLabel.setBounds(10, 154, 100, 20);
+		contactLabel.setBounds(10, 167, 100, 20);
 		
 		//set up JFormattedTextFields
 		//NumberFormat integerFieldFormatter = NumberFormat.getInt95erI20tance();
@@ -1256,7 +1234,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		//statusText.setBackground(Color.green);
 		statusText.setBorder(BorderFactory.createLineBorder(Color.black, 1, true));
 		statusText.setLayout(null);
-		statusText.setBounds(new Rectangle(50, 124, 164, 20));
+		statusText.setBounds(new Rectangle(64, 124, 200, 20));
 		statusText.setLocation(new Point(64,124));
 		statusLabel.setLabelFor(statusText);
 	}
@@ -1264,48 +1242,48 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	private void setUpPanelBtn()
 	{
 		btnEditInfo.setBackground(new Color(0, 255, 255));
-		btnEditInfo.setBounds(30, 368, 117, 29);
+		btnEditInfo.setBounds(30, 370, 117, 29);
 		viewRightPanel.add(btnEditInfo);
 		
 		btnAddContactInfo = new JButton("Add New Contact");
-		btnAddContactInfo.setBounds(170, 174, 134, 29);
+		btnAddContactInfo.setBounds(170, 185, 134, 29);
 		viewRightPanel.add(btnAddContactInfo);
 		btnAddContactInfo.setVisible(false);
 		
 		btnCancel = new JButton("Cancel");
-		btnCancel.setBounds(10, 368, 86, 29);
+		btnCancel.setBounds(10, 370, 86, 29);
 		viewRightPanel.add(btnCancel);
 		btnCancel.setVisible(false);
 		
 		btnSave = new JButton("Save");
-		btnSave.setBounds(102, 368, 86, 29);
+		btnSave.setBounds(102, 370, 86, 29);
 		viewRightPanel.add(btnSave);
 		scrollRightPane.setPreferredSize(viewRightPanel.getSize());
 		btnSave.setVisible(false);
 		
 		btnDeleteTracer = new JButton("Delete Tracer");
-		btnDeleteTracer.setBounds(213, 368, 117, 29);
+		btnDeleteTracer.setBounds(213, 370, 117, 29);
 		viewRightPanel.add(btnDeleteTracer);
 		btnDeleteTracer.setVisible(true);
 		
 		NotInfectedRadio = new JRadioButton("Not Infected");
 		NotInfectedRadio.setActionCommand("Not Infected");
 		buttonGroup.add(NotInfectedRadio);
-		NotInfectedRadio.setBounds(295, 70, 141, 23);
+		NotInfectedRadio.setBounds(158, 143, 110, 23);
 		viewRightPanel.add(NotInfectedRadio);
 		
 		PendingRadio = new JRadioButton("Pending");
 		PendingRadio.setActionCommand("Pending");
 		PendingRadio.setSelected(true);
 		buttonGroup.add(PendingRadio);
-		PendingRadio.setBounds(295, 95, 141, 23);
+		PendingRadio.setBounds(268, 122, 86, 23);
 		viewRightPanel.add(PendingRadio);
 		
 		InfectedRadio = new JRadioButton("Infected");
 		InfectedRadio.setActionCommand("Infected");
 		InfectedRadio.setSelected(true);
 		buttonGroup.add(InfectedRadio);
-		InfectedRadio.setBounds(295, 120, 141, 23);
+		InfectedRadio.setBounds(64, 143, 86, 23);
 		viewRightPanel.add(InfectedRadio);
 		
 		

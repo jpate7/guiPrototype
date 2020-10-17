@@ -18,6 +18,7 @@ public class MainFrame {
 		main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		main.setSize(700, 500);
 		main.setMaximumSize(new Dimension(720,530));
+		main.setMinimumSize(new Dimension(700,440));
 		//main.getContentPane().setLayout(new FlowLayout);
 		main.getContentPane().add(new MainPanel());
 		main.setVisible(true);
