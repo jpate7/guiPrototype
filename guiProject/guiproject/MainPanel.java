@@ -409,8 +409,8 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		{
 			public void actionPerformed(ActionEvent e)
 			{//outputs the saved and edited data to a text document;
-				guiData.writeFile();
-				JOptionPane.showMessageDialog(null, "Data is saved in the Output file");
+				guiData.doGuiWrite(guiData.getReadFileName());
+				JOptionPane.showMessageDialog(null, "Data is saved in the "+guiData.getReadFileName()+" file");
 				System.exit(-1);
 			}
 		}

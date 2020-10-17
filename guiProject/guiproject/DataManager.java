@@ -36,7 +36,7 @@ public class DataManager
 		//if tracer has Hash Key equal to Person P's ID, cannot add, instead update
 		else
 			tracers.put(P.getId(), P);	//add Person P to tracers
-										//Person P's ID as HashKey 
+										//Person P's ID as HashKey
 										//Person P reference as Hash value
 		
 
@@ -388,6 +388,43 @@ public class DataManager
 	}
 	//----------------------------------------------------------------------------------------------------------
 	
+	
+	//---------------------------Gui Output Writer
+	
+	public void doGuiWrite(String fn) {
+		// this method writes all of the data in the persons array to a file
+		try
+		{
+
+			FileWriter fw = new FileWriter(fn);
+			BufferedWriter myOutfile = new BufferedWriter(fw);	
+			for(String keyId: tracers.keySet())	//iterate over the key-value pairs(ID-Person pair)
+			{
+				myOutfile.write(tracers.get(keyId).getId()+",");
+				myOutfile.write(tracers.get(keyId).getName()+",");
+				myOutfile.write(tracers.get(keyId).getStatus()+",");
+				myOutfile.write(tracers.get(keyId).getNumber()+",");
+				
+				//myOutfile.write("ID of Contacts: [" );
+				Iterator<String> iter = tracers.get(keyId).Iterator();	//iterate over the contact's IDs
+				while(iter.hasNext())
+				{
+					myOutfile.write(iter.next()+ ",");	//print Person's contact's IDs
+				}
+				myOutfile.write("\n");
+			}
+			
+			myOutfile.flush();		//delete anything left in the buffer
+			myOutfile.close();	//finished writing and close write file
+		}
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+			System.err.println("Didn't save to " + fn);
+		}
+		
+	}
+	
 	public void readFrom(String file)
 	{
 		readFile(file);
@@ -457,6 +494,8 @@ public class DataManager
 	} // end of readFile method
 
 	//---------------------------------------------------------------------------------------------------------------------
+
+	
 	
 	public String toString()
 	{
