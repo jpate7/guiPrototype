@@ -6,9 +6,12 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
-
+import java.util.*;
 
 public class MainPanel extends JPanel /*implements ActionListener*/
 {
@@ -114,6 +117,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		}
 		//idList = new JList(ids);
 		nameList = new JList(listModel);
+		nameList.setBackground(new Color(248, 248, 255));
 	
 
 		
@@ -139,9 +143,9 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		File.setBackground(Color.white);
 		File.setForeground(SystemColor.textHighlight);
 		menuBar.add(File);
-		OpenFile = new JMenuItem("Open a File");
+		OpenFile = new JMenuItem("Open Existing File");
 		File.add(OpenFile);
-		Save_N_Close = new JMenuItem("Save and Close Window");
+		Save_N_Close = new JMenuItem("Save and Close Program");
 		File.add(Save_N_Close);
 		Exit = new JMenuItem("Exit Program");
 		File.add(Exit);
@@ -149,9 +153,9 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		Options = new JMenu("Options");
 		Options.setBackground(Color.white);
 		menuBar.add(Options);
-		AddTracer = new JMenuItem("Add a new Tracer");
+		AddTracer = new JMenuItem("Add New Tracer");
 		Options.add(AddTracer);
-		DeleteTracer = new JMenuItem("Delete Tracer");
+		DeleteTracer = new JMenuItem("Delete Existing Tracer");
 		Options.add(DeleteTracer);
 		
 		
@@ -225,7 +229,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 
 		//add the two panes to this JPanel
 		dataSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
-		dataSplit.setBackground(Color.red);
+		dataSplit.setBackground(new Color(255, 240, 245));
 		dataSplit.setDividerSize(8);
 		dataSplit.setDividerLocation(MAIN_X/3);
 		dataSplit.setPreferredSize(new Dimension(MAIN_X,MAIN_Y));
@@ -318,7 +322,6 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			if (returnValue == JFileChooser.APPROVE_OPTION) 
 			{
 				String selectedFile = jfc.getSelectedFile().toString();
-				System.out.println(jfc.getSelectedFile().getName());
 				if(guiData.getReadFileName().equals(jfc.getSelectedFile().getName()))
 					JOptionPane.showMessageDialog(null, "File is already open");
 				else
@@ -326,14 +329,11 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 					guiData = new DataManager();
 					guiData.readFrom(jfc.getSelectedFile().getName().toString());
 					listModel.clear();
-					//DefaultListModel<String> ids = new DefaultListModel<String>();
-					//DefaultListModel<String> contacts = new DefaultListModel<String>();
 					ArrayList<Person> data = guiData.getAllTracers();
 					for(Person p: data)
 					{
 						listModel.addElement(p.getId() +", "+ p.getName());
 					}
-					//idList = new JList(ids);
 					nameList.setModel(listModel);
 					fillInfo(listModel.getElementAt(0).toString());
 					
@@ -410,9 +410,47 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 					"Delete","Cancel"
 			};
 			
-			int result = JOptionPane.showOptionDialog(null, deleteTPanel,"Delete A Tracer by ID",
-					JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE,null,customOption,customOption[0]);
-			if(result == JOptionPane.YES_OPTION)
+			int tempResult = 0, tempValid = 0;
+			do
+			{
+				try
+				{
+					tempResult = JOptionPane.showOptionDialog(null, deleteTPanel,"Delete A Tracer by ID",
+						JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE,null,customOption,customOption[0]);
+					if(tempResult == JOptionPane.YES_OPTION)
+					{
+						//parse int and check for validation
+						tempValid = Integer.parseInt(tracerId.getText().toString());
+						if( tempValid > 999999 || tempValid < 000000 || (tracerId.getText().toString().length() != 6) )
+							throw new Exception();
+						else
+						{
+							Person toDelete = guiData.findPerson(tracerId.getText().toString());
+							if(toDelete != null)	//if person toDelete exist
+							{
+								guiData.removeTracer(toDelete);
+								updateList(toDelete.getId() + ", " + toDelete.getName());
+								JOptionPane.showMessageDialog(null,"ID: " + tracerId.getText() +  " is now deleted");
+								guiData.deleteContactFromAllTracers(tracerId.getText().toString());
+							}
+							else
+								JOptionPane.showMessageDialog(null,"ID: " + tracerId.getText() +  " is not a tracer and cannot be deleted");
+						}
+					}
+					else
+						tempResult = JOptionPane.CANCEL_OPTION;
+						
+				}
+				catch(Exception j)
+				{
+					JOptionPane.showMessageDialog(null, "Error has occured, Please enter a 6-Digit ID");
+				}
+			}while((tempValid < 000000 || tempValid > 999999 || (tracerId.getText().toString().length() != 6)) && (tempResult == JOptionPane.YES_OPTION));
+			
+			
+					
+					
+			/*if(result == JOptionPane.YES_OPTION)
 			{
 				Person toDelete = guiData.findPerson(tracerId.getText().toString());
 				if(toDelete != null)	//if person toDelete exist
@@ -425,7 +463,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 				else
 					JOptionPane.showMessageDialog(null,"ID: " + tracerId.getText() +  " is not a tracer and cannot be deleted");
 				
-			}
+			}*/
 			
 			
 		
@@ -443,7 +481,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			
 		}
 		
-		
+
 		
 		public void actionPerformed(ActionEvent e)
 		{
@@ -456,11 +494,11 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			
 			JLabel nameOption = new JLabel("Name: ");
 			nameOption.setLabelFor(tracerName);
-			JLabel numberOption = new JLabel("Number: Enter 10-Digit Number");
+			JLabel numberOption = new JLabel("Number: Enter 10-Digit Phone Number, ex: xxxxxx2345");
 			numberOption.setLabelFor(tracerName);
 			JLabel statusOption = new JLabel("Status: ");
 			statusOption.setLabelFor(tracerStatus);
-			JLabel IdOption = new JLabel("ID: Enter 6-Digit ID");
+			JLabel IdOption = new JLabel("ID: Enter 6-Digit ID, ex: xxx123");
 			IdOption.setLabelFor(tracerId);
 			
 			Object[] fields = {
@@ -469,28 +507,56 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 					statusOption, tracerStatus,
 					IdOption, tracerId
 			};
-
 			
-			int result = JOptionPane.showConfirmDialog(null, fields,"Please Enter Contact Info", JOptionPane.OK_CANCEL_OPTION);
-			if(result == JOptionPane.OK_OPTION)
+			
+			int tempResult = 0, tempId;
+			boolean idExam = false, numExam = false;
+			do
 			{
-				if(!(guiData.containsTracer(guiData.findPerson(tracerId.getText().toString()))))	//if added tracer exist or not
+				try
 				{
-					Person addedTracer = new Person();
-					addedTracer.setName(tracerName.getText().toString());
-					addedTracer.setNumber(tracerNumber.getText().toString());
-					addedTracer.setStatus(tracerStatus.getText().toString());
-					addedTracer.setId(tracerId.getText().toString());
-					System.out.println(addedTracer);
-					
-					guiData.addTracer(addedTracer);
-					JOptionPane.showMessageDialog(null,"ID: " + addedTracer.getId() +  " is now added as a Tracer");
-					updateList(addedTracer);
-				}
-				else
-					JOptionPane.showMessageDialog(null,"ID: " + tracerId.getText() +  " already exists as a Tracer");
+					tempResult = JOptionPane.showConfirmDialog(null, fields,"Please Enter Contact Info", JOptionPane.OK_CANCEL_OPTION);
+					if(tempResult == JOptionPane.OK_OPTION)
+					{
+						//parse fields and check for validation
+						tempId = Integer.parseInt(tracerId.getText().toString());
+						//if exam is true, failed input, so validate
+						idExam = (tempId > 999999 || tempId < 000000 || (tracerId.getText().toString().length() != 6));
+						numExam = InvalidPhoneNumber(tracerNumber.getText().toString());
+						if(idExam || numExam)
+							throw new Exception();
+						else
+						{
+							if(!(guiData.containsTracer(guiData.findPerson(tracerId.getText().toString()))))	//if added tracer exist or not
+							{
+								Person addedTracer = new Person();
+								addedTracer.setName(tracerName.getText().toString());
+								addedTracer.setNumber(tracerNumber.getText().toString());
+								addedTracer.setStatus(tracerStatus.getText().toString());
+								addedTracer.setId(tracerId.getText().toString());
+								System.out.println(addedTracer);
+								
+								guiData.addTracer(addedTracer);
+								JOptionPane.showMessageDialog(null,"ID: " + addedTracer.getId() +  " is now added as a Tracer");
+								updateList(addedTracer);
+							}
+							else
+								JOptionPane.showMessageDialog(null,"ID: " + tracerId.getText() +  " already exists as a Tracer");
 
-			}
+						}
+						
+					}
+					else
+						tempResult = JOptionPane.CANCEL_OPTION;
+				}
+				catch(Exception j)
+				{
+					JOptionPane.showMessageDialog(null, "Error has occured, Please enter a 6-Digit ID \nand a 10-Digit Phone Number");
+				}
+			}while((idExam || numExam) && (tempResult == JOptionPane.OK_OPTION));
+			
+
+
 			
 		}
 	}
@@ -516,6 +582,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	{
 		public void actionPerformed(ActionEvent e)
 		{
+			nameList.disable();
 			contactOption = new JOptionPane();
 			//contactPanel = new JPanel();
 			JTextField contactName = new JTextField("");
@@ -525,7 +592,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			
 			JLabel nameOption = new JLabel("Name: ");
 			nameOption.setLabelFor(contactName);
-			JLabel numberOption = new JLabel("Number: Enter 10-Digit Number");
+			JLabel numberOption = new JLabel("Number: Enter a 10-Digit Number");
 			numberOption.setLabelFor(contactName);
 			JLabel statusOption = new JLabel("Status: ");
 			statusOption.setLabelFor(contactStatus);
@@ -622,25 +689,6 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	{
 		private void updateList()
 		{//update the list with info on the new person
-			/*DefaultListModel<String> names = new DefaultListModel<String>();
-			ArrayList<Person> data = guiData.getAllTracers();
-			for(Person p: data) 
-			{
-				names.addElement(p.getId() +", "+ p.getName());
-			}
-			
-			nameList = new JList(names);*/
-			
-			/*DefaultListModel listModel = (DefaultListModel)nameList.getModel();
-	        listModel.clear();
-	        ArrayList<Person> data = guiData.getAllTracers();
-			for(Person p: data) 
-			{
-				listModel.addElement(p.getId() +", "+ p.getName());
-			}
-			nameList.updateUI();
-			nameList = new JList(listModel);*/
-			
 			
 			//listModel.clear();
 			listModel.setElementAt(getOriginalPerson().getId() +", "+ getOriginalPerson().getName(), listIndex);
@@ -648,10 +696,51 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			
 		}
 		
+		private void updatenameList()
+		{//update the list with info on the new person
+			
+			//listModel.clear();
+			listModel.addElement(getAddedContact().getId()+", "+getAddedContact().getName());
+			nameList.setModel(listModel);
+			
+		}
+
+
+		
 		
 		
 		public void actionPerformed(ActionEvent e)
 		{
+			
+			//------------------------
+			//validate input before saving
+			boolean numExam = false, idExam = false;
+			do
+			{
+				try {
+					int tempId = Integer.parseInt(idText.getText().toString());
+					numExam = InvalidPhoneNumber(phoneNumberText.getText().toString());	//returns true if invalid
+					idExam = (tempId > 999999 || tempId < 000000 || idText.getText().toString().length() != 6);	//returns true if id is not 6 digits
+																												//or if is not in range
+					if(numExam || idExam)
+						throw new Exception();
+				}
+				catch(Exception j)
+				{
+					JOptionPane.showMessageDialog(null, "Cannot Save, ID must be 6-digits and Number must be 10-digits");
+					//revert fields back to original Person
+					idText.setText(getOriginalPerson().getId());
+					nameText.setText(getOriginalPerson().getName());
+					phoneNumberText.setText(getOriginalPerson().getNumber());
+					statusText.setText(getOriginalPerson().getStatus());
+					
+				}
+			}while(numExam||idExam);
+			
+			
+			
+			
+			//-------------------------
 			
 			Person new_P = new Person();
 			new_P.setId(idText.getText().toString());
@@ -665,6 +754,8 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			if(getAddedContactSet())
 			{
 				c.add(getAddedContact().getId());
+				guiData.addTracer(getAddedContact());
+				updatenameList();
 				isAddedContactSet(false);
 			
 			}
@@ -710,6 +801,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	private class btnEditInfoListener implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) {
+			nameList.disable();
 			btnEditInfo.setVisible(false);
 			btnDeleteTracer.setVisible(false);
 			btnSave.setVisible(true);
@@ -720,7 +812,6 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			statusText.setEditable(true);
 			phoneNumberText.setEditable(true);
 			//contactArea.setEditable(true);
-			nameList.disable();
 		}
 	}
 	
@@ -830,6 +921,13 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	
 	//----------------------------------FIRING HELPERS--------------------------------------------------------------------------------------------------------------------------
 	
+	private boolean InvalidPhoneNumber(String target) {
+	    Pattern pattern = Pattern.compile("^\\d{10}$");
+	    Matcher matcher = pattern.matcher(target);
+	    return !(matcher.matches());	//return true if validation fails
+
+	  }
+	
 	private void disableTextFields()
 	{
 		idText.setEditable(false);
@@ -886,7 +984,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		//set up viewRightPanel by adding all the elements
 		viewRightPanel = new JPanel();
 		viewRightPanel.setLayout(null);
-		viewRightPanel.setBackground(Color.white);
+		viewRightPanel.setBackground(new Color(230, 230, 250));
 		viewRightPanel.add(idLabel);
 		viewRightPanel.add(idText);
 		viewRightPanel.add(nameLabel);
@@ -914,16 +1012,17 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		contactLabel.setBounds(10, 154, 100, 20);
 		
 		//set up JFormattedTextFields
-		NumberFormat integerFieldFormatter = NumberFormat.getIntegerInstance();
-		integerFieldFormatter.setMaximumFractionDigits(0);
-		integerFieldFormatter.setGroupingUsed(false);
+		//NumberFormat integerFieldFormatter = NumberFormat.getIntegerInstance();
+		//integerFieldFormatter.setMaximumFractionDigits(0);
+		//integerFieldFormatter.setGroupingUsed(false);
 		idText = new JTextField();
+		//idText.setBackground(new Color(255, 255, 255));
 		idText.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		idText.setText("000000");
 		idText.setEditable(true);
 		idText.setForeground(Color.BLACK);
 		//idText.setBackground(Color.blue);
-		idText.setBorder(BorderFactory.createLineBorder(Color.black, 2, true));
+		idText.setBorder(BorderFactory.createLineBorder(Color.black, 1, true));
 		idText.setLayout(null);
 		idText.setVisible(true);
 		idText.setBounds(new Rectangle(200,30));
@@ -932,10 +1031,11 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		
 		nameText = new JTextField();
 		nameText.setText("Default");
+		nameText.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		nameText.setEditable(true);
 		nameText.setForeground(Color.BLACK);
 		//nameText.setBackground(Color.YELLOW);
-		nameText.setBorder(BorderFactory.createLineBorder(Color.black, 2, true));
+		nameText.setBorder(BorderFactory.createLineBorder(Color.black, 1, true));
 		nameText.setLayout(null);
 		nameText.setBounds(new Rectangle(64, 56, 189, 20));
 		nameText.setLocation(new Point(64,58));
@@ -943,10 +1043,11 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		
 		phoneNumberText = new JTextField();
 		phoneNumberText.setText("0");
+		phoneNumberText.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		phoneNumberText.setEditable(true);
 		phoneNumberText.setForeground(Color.BLACK);
 		//phoneNumberText.setBackground(Color.green);
-		phoneNumberText.setBorder(BorderFactory.createLineBorder(Color.black, 2, true));
+		phoneNumberText.setBorder(BorderFactory.createLineBorder(Color.black, 1, true));
 		phoneNumberText.setLayout(null);
 		phoneNumberText.setBounds(new Rectangle(113, 92, 177, 20));
 		phoneNumberText.setLocation(new Point(110,92));
@@ -955,10 +1056,11 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		
 		statusText = new JTextField();
 		statusText.setText("Default");
+		statusText.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		statusText.setEditable(true);
 		statusText.setForeground(Color.BLACK);
 		//statusText.setBackground(Color.green);
-		statusText.setBorder(BorderFactory.createLineBorder(Color.black, 2, true));
+		statusText.setBorder(BorderFactory.createLineBorder(Color.black, 1, true));
 		statusText.setLayout(null);
 		statusText.setBounds(new Rectangle(50, 124, 164, 20));
 		statusText.setLocation(new Point(64,124));
@@ -967,7 +1069,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	
 	private void setUpPanelBtn()
 	{
-		btnEditInfo.setBackground(Color.WHITE);
+		btnEditInfo.setBackground(new Color(0, 255, 255));
 		btnEditInfo.setBounds(30, 368, 117, 29);
 		viewRightPanel.add(btnEditInfo);
 		

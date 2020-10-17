@@ -1,3 +1,5 @@
-ID: 000002; Name: Abraham; Phone #: 1236783456; Status: is safe; ID of Contacts: [000001, ]
-ID: 000001; Name: Lexi; Phone #: 1234567845; Status: is safe; ID of Contacts: [000002, ]
-ID: 000323; Name: Jay; Phone #: 3432343233; Status: is Safe; ID of Contacts: []
+ID: 000003; Name: Al; Phone #: 1245093423; Status: is infected; ID of Contacts: [000002, 000005, ]
+ID: 000002; Name: Stan; Phone #: 1236783456; Status: is safe; ID of Contacts: [000003, 000005, ]
+ID: 000001; Name: Jake; Phone #: 1234567845; Status: is safe; ID of Contacts: [000004, 000003, ]
+ID: 000005; Name: Roger; Phone #: 2358392034; Status: is at risk; ID of Contacts: [000003, 000002, ]
+ID: 000004; Name: Sofie; Phone #: 1347682356; Status: is safe; ID of Contacts: [000001, ]
