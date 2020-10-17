@@ -457,5 +457,15 @@ public class DataManager
 	} // end of readFile method
 
 	//---------------------------------------------------------------------------------------------------------------------
+	
+	public String toString()
+	{
+		String toReturn = "";
+		for(String i: tracers.keySet())
+		{
+			toReturn += tracers.get(i).toString();
+		}
+		return toReturn;
+	}
 }
 

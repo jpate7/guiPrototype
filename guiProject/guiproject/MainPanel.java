@@ -63,6 +63,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	private JButton btnCancel;
 	private JButton btnSave;
 	private JButton btnDeleteTracer;
+	private JButton btnDeleteThisCon;
 	
 	
 	private JPanel deleteTPanel;
@@ -73,6 +74,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	private Person original;
 	private Person addedContact;
 	private Person addedPerson;
+	private Person deletedContact;
 	
 	private JRadioButton NotInfectedRadio;
 	private JRadioButton InfectedRadio;
@@ -80,12 +82,12 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	
 	private boolean cValue;
 	private boolean pValue;
+	private boolean dValue;
 
-	private int checker;
 	private int listIndex = 0;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
 	
-	private String buttonStatus;
+	//private String buttonStatus;
 
 	
 
@@ -97,12 +99,14 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	 */
 	public MainPanel()
 	{
+		
 		super();
 		original = null;
 		this.setPreferredSize(new Dimension(MAIN_X,MAIN_Y));
 		
 ;		guiData = new DataManager();
 		guiData.readFrom("input.txt");
+		
 		
 		this.setBackground(Color.WHITE);
 		this.setForeground(Color.WHITE);
@@ -133,7 +137,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		
 		//configure the Jlist of the left panel
 		listScrollPane = new JScrollPane();
-        listScrollPane.setPreferredSize(new Dimension((MAIN_X/2),MAIN_Y));
+        //listScrollPane.setPreferredSize(new Dimension((MAIN_X/2),MAIN_Y));
 		nameList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		nameList.setSelectedIndex(0);
 		nameList.setVisibleRowCount(10);
@@ -200,6 +204,8 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		
 		
 		contactScrollPane = new JScrollPane();
+		contactScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		contactScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		contactScrollPane.setBounds(10, 213, 200, 143);
 		
 		contactArea = new JTextArea();
@@ -255,6 +261,8 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		statusText.setEditable(false);
 		phoneNumberText.setEditable(false);
 		contactArea.setEditable(false);
+		btnDeleteThisCon.setVisible(false);
+		
 		
 		
 		
@@ -300,6 +308,9 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		//implements the "Delete Tracer" button on the rightPanel
 		btnDeleteTracer.addActionListener(new btnDeleteTracerListener());
 		
+		//implements the "Delete This Contact" button on the rightPanel
+		btnDeleteThisCon.addActionListener(new btnDeleteThisConListener());
+		
 		
 		RadioGroupButtonListener listenToRadioGroup= new RadioGroupButtonListener();
 		//implements the "Pending Radio" Radio button to set status from group
@@ -312,9 +323,6 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		NotInfectedRadio.addActionListener(listenToRadioGroup);
 		
 		
-	
-		checker  = 0;
-		
 		
 	
 	}
@@ -322,6 +330,38 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	
 	
 	//--------------------------------------FIRING LISTENERS-------------------------------------------------------------------------------------------------------------------------------
+	
+	//implements the listner for the "Delete this Contact" Item
+	private class btnDeleteThisConListener implements ActionListener
+	{
+
+		
+		public void actionPerformed(ActionEvent e)
+		{
+//			first, use a JOptionPane to ask if they want to delete the tracer
+			
+			String[] customOption = {
+					"Yes, Delete Contact","No, Go Back"
+			};
+			int result = JOptionPane.showOptionDialog(null, "Are you sure you want to delete this Contact and discard all unsaved changes", "Confirm Delete",
+					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, customOption, customOption[0]);
+			
+			if(result == JOptionPane.YES_OPTION)
+			{
+				Person toRemove = guiData.findPerson(contactBox.getSelectedItem().toString());
+				setDeletedContact(toRemove);
+				guiData.removeContact(getOriginalPerson(), toRemove.getId());
+				fillContactBox(getOriginalPerson().getId());
+				nameList.enable();
+			}
+			btnAddContactInfo.setVisible(false);
+			btnEditInfo.setVisible(true);
+			btnSave.setVisible(false);
+			btnCancel.setVisible(false);
+			btnDeleteThisCon.setVisible(false);
+		}
+	}
+	
 	
 	//implements the listener for the "Exit" menu Item--------------------------------------
 	private class MenuExitListener implements ActionListener
@@ -787,6 +827,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			btnSave.setVisible(false);
 			btnEditInfo.setVisible(true);
 			btnAddContactInfo.setVisible(false);
+			btnDeleteThisCon.setVisible(false);
 			btnDeleteTracer.setVisible(true);
 			nameList.enable();
 			
@@ -902,6 +943,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			btnEditInfo.setVisible(true);
 			btnAddContactInfo.setVisible(false);
 			btnDeleteTracer.setVisible(true);
+			btnDeleteThisCon.setVisible(false);
 			disableTextFields();
 			nameList.enable();
 			updateList();
@@ -918,6 +960,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			btnSave.setVisible(true);
 			btnCancel.setVisible(true);
 			btnAddContactInfo.setVisible(true);
+			btnDeleteThisCon.setVisible(true);
 			idText.setEditable(true);
 			nameText.setEditable(true);
 			//statusText.setEditable(true);
@@ -943,6 +986,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			statusText.setEditable(false);
 			phoneNumberText.setEditable(false);
 			contactArea.setEditable(false);
+			btnDeleteThisCon.setVisible(false);
 			
 			
 			
@@ -968,6 +1012,40 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	//---------------------CURRENT PERSON HELPER FUNCTIONS----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
 
+	private void setDeletedContact(Person added)
+	{
+		if(!(added == null))
+		{
+			deletedContact = added;
+			isdeletedContactSet(true);
+		}
+		else
+		{
+			System.out.println("assigning null reference");
+		}
+	}
+	
+	public Person getDeletedContact()
+	{
+		if(getAddedContactSet())
+			return deletedContact;
+		else
+		{
+			System.out.println("Error");
+			return null;
+		}
+	}
+	
+	private void isdeletedContactSet(boolean val) {
+		dValue = val;
+	}
+	
+	private boolean getdeletedContactSet()
+	{
+		return dValue;
+	}
+
+	//--------
 	private void setAddedContact(Person added)
 	{
 		if(!(added == null))
@@ -1260,6 +1338,10 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		viewRightPanel.add(btnSave);
 		scrollRightPane.setPreferredSize(viewRightPanel.getSize());
 		btnSave.setVisible(false);
+		
+		btnDeleteThisCon = new JButton("Delete This Contact");
+		btnDeleteThisCon.setBounds(302, 185, 153, 29);
+		viewRightPanel.add(btnDeleteThisCon);
 		
 		btnDeleteTracer = new JButton("Delete Tracer");
 		btnDeleteTracer.setBounds(213, 370, 117, 29);

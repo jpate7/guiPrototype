@@ -23,6 +23,7 @@ public class MainFrame {
 		main.getContentPane().add(new MainPanel());
 		main.setVisible(true);
 		main.pack();
+		
 	}
 
 }
