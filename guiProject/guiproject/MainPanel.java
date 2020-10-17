@@ -5,7 +5,7 @@ import java.text.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.Border;
-import java.util.ArrayList;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,11 +74,18 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	private Person addedContact;
 	private Person addedPerson;
 	
+	private JRadioButton NotInfectedRadio;
+	private JRadioButton InfectedRadio;
+	private JRadioButton PendingRadio;
+	
 	private boolean cValue;
 	private boolean pValue;
 
 	private int checker;
 	private int listIndex = 0;
+	private final ButtonGroup buttonGroup = new ButtonGroup();
+	
+	private String buttonStatus;
 
 	
 
@@ -201,6 +208,8 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		
 		
 		
+		
+		
 		//adds the necessary elements to the right Viewing panels, which in in a scrollRight Pane
 		addToViewRightPanel();
 	
@@ -218,7 +227,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		btnEditInfo = new JButton("Edit Info");
 	
 		
-		//set up the buttons(Edit info, Cancel, Save, Add New Contact)
+		//set up the buttons(Edit info, Cancel, Save, Add New Contact, Safe Radio, Pending Radio, Infected Radio)
 		setUpPanelBtn();
 
 		
@@ -247,6 +256,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		statusText.setEditable(false);
 		phoneNumberText.setEditable(false);
 		contactArea.setEditable(false);
+		
 		
 		
 		//fill all the right panel based on selectedItem from nameList
@@ -290,6 +300,18 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		
 		//implements the "Delete Tracer" button on the rightPanel
 		btnDeleteTracer.addActionListener(new btnDeleteTracerListener());
+		
+		
+		RadioGroupButtonListener listenToRadioGroup= new RadioGroupButtonListener();
+		//implements the "Pending Radio" Radio button to set status from group
+		PendingRadio.addActionListener(listenToRadioGroup);
+		
+		//implements the "Pending Radio" Radio button to set status from group
+		InfectedRadio.addActionListener(listenToRadioGroup);
+		
+		//implements the "Pending Radio" Radio button to set status from group
+		NotInfectedRadio.addActionListener(listenToRadioGroup);
+		
 		
 	
 		checker  = 0;
@@ -401,7 +423,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		{//delete Tracer by ID
 			deleteTPanel = new JPanel();
 			JTextField tracerId = new JTextField(10);
-			JLabel IdOption = new JLabel("ID: Enter 6-Digit ID");
+			JLabel IdOption = new JLabel("ID: Enter 6-Digit ID, ex:xxx123");
 			IdOption.setLabelFor(tracerId);
 			deleteTPanel.add(IdOption);
 			deleteTPanel.add(tracerId);
@@ -494,23 +516,25 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			
 			JLabel nameOption = new JLabel("Name: ");
 			nameOption.setLabelFor(tracerName);
-			JLabel numberOption = new JLabel("Number: Enter 10-Digit Phone Number, ex: xxxxxx2345");
+			JLabel numberOption = new JLabel("Number: ");
+			JLabel extraNumLabel = new JLabel("Enter 10-Digit Phone Number, ex: xxxxxx2345");
 			numberOption.setLabelFor(tracerName);
 			JLabel statusOption = new JLabel("Status: ");
+			JLabel extraStatLabel = new JLabel("Enter -1 for Not Infected; 0 for Pending; 1 for Infected");
 			statusOption.setLabelFor(tracerStatus);
-			JLabel IdOption = new JLabel("ID: Enter 6-Digit ID, ex: xxx123");
+			JLabel IdOption = new JLabel("ID: ");
+			JLabel extraIdLabel = new JLabel("Enter 6-Digit ID, ex: xxx123");
 			IdOption.setLabelFor(tracerId);
 			
 			Object[] fields = {
 					nameOption, tracerName,
-					numberOption, tracerNumber,
-					statusOption, tracerStatus,
-					IdOption, tracerId
+					numberOption, extraNumLabel,tracerNumber,
+					statusOption, extraStatLabel, tracerStatus,
+					IdOption, extraIdLabel,tracerId
 			};
-			
-			
+
 			int tempResult = 0, tempId;
-			boolean idExam = false, numExam = false;
+			boolean idExam = false, numExam = false, failedStatus;
 			do
 			{
 				try
@@ -532,7 +556,25 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 								Person addedTracer = new Person();
 								addedTracer.setName(tracerName.getText().toString());
 								addedTracer.setNumber(tracerNumber.getText().toString());
-								addedTracer.setStatus(tracerStatus.getText().toString());
+								String temp = tracerStatus.getText().toString();
+								if(temp.equals("1"))
+								{
+									addedTracer.setStatus("Infected");
+								}
+								else if(temp.equals("0"))
+								{
+									addedTracer.setStatus("Pending");
+								}
+								else if(temp.equals("-1"))
+								{
+									addedTracer.setStatus("Not Infected");
+								}
+								else
+								{
+									failedStatus = true;
+									throw new Exception();
+								}
+								
 								addedTracer.setId(tracerId.getText().toString());
 								System.out.println(addedTracer);
 								
@@ -551,12 +593,42 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 				}
 				catch(Exception j)
 				{
+					failedStatus = false;
 					JOptionPane.showMessageDialog(null, "Error has occured, Please enter a 6-Digit ID \nand a 10-Digit Phone Number");
 				}
 			}while((idExam || numExam) && (tempResult == JOptionPane.OK_OPTION));
 			
 
 
+			
+		}
+	}
+	
+	//implements the JRadioButton "Infected" actionListener-------------------------------------------------------------------
+	private class RadioGroupButtonListener implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{
+			statusText.setEditable(true);
+			 JRadioButton button = (JRadioButton) e.getSource();
+			 
+		        if (button == InfectedRadio) {
+		 
+		            // option InfectedRadio is selected
+		        	statusText.setText(button.getText().toString());
+		        	
+		 
+		        } else if (button == NotInfectedRadio) {
+		 
+		            // option NotInfectedRadio is selected
+		        	statusText.setText(button.getText().toString());
+		 
+		        } else if (button == PendingRadio) {
+		 
+		            // option PendingRadio is selected
+		        	statusText.setText(button.getText().toString());
+		        }
+		        statusText.setEditable(false);
 			
 		}
 	}
@@ -572,8 +644,32 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		idText.setEditable(false);
 		nameText.setEditable(false);
 		statusText.setEditable(false);
+		//Enumeration<AbstractButton> enumerate = buttonGroup.getElements();
+		
+		/*if(getOriginalPerson().getStatus().equals("Pending"))
+		{
+			PendingRadio.setEnabled(true);
+			InfectedRadio.setEnabled(false);
+			NotInfectedRadio.setEnabled(false);
+		}
+		else if(getOriginalPerson().getStatus().equals("Infected"))
+		{
+			InfectedRadio.setEnabled(true);
+			NotInfectedRadio.setEnabled(false);
+			PendingRadio.setEnabled(false);
+		}
+		else if(getOriginalPerson().getStatus().equals("Not Infected"))
+		{
+			NotInfectedRadio.setEnabled(true);
+			PendingRadio.setEnabled(false);
+			InfectedRadio.setEnabled(false);
+		}
+		else
+			System.out.println("Error!");*/
+			
 		phoneNumberText.setEditable(false);
 		contactArea.setEditable(false);
+		
 	}
 	
 	
@@ -592,56 +688,90 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			
 			JLabel nameOption = new JLabel("Name: ");
 			nameOption.setLabelFor(contactName);
-			JLabel numberOption = new JLabel("Number: Enter a 10-Digit Number");
+			JLabel numberOption = new JLabel("Number: ");
 			numberOption.setLabelFor(contactName);
 			JLabel statusOption = new JLabel("Status: ");
+			JLabel extraLabel = new JLabel("Enter -1 for Not Infected; 0 for Pending; 1 for Infected");
 			statusOption.setLabelFor(contactStatus);
-			JLabel IdOption = new JLabel("ID: Enter 6-Digit ID");
+			JLabel IdOption = new JLabel("ID: ");
 			IdOption.setLabelFor(contactId);
+			JLabel extraNumLabel = new JLabel("Enter 10-Digit Phone Number, ex: xxxxxx2345");
+			JLabel extraIdLabel = new JLabel("Enter 6-Digit ID, ex: xxx123");
 			
 			Object[] fields = {
 					nameOption, contactName,
-					numberOption, contactNumber,
-					statusOption, contactStatus,
-					IdOption, contactId
+					numberOption, extraNumLabel,contactNumber,
+					statusOption, extraLabel, contactStatus,
+					IdOption, extraIdLabel,contactId
 			};
 			
-			/*contactPanel.add(nameOption);
-			contactPanel.add(contactName);
-			contactPanel.add(Box.createHorizontalStrut(20));
-			contactPanel.add(numberOption);
-			contactPanel.add(contactNumber);
-			contactPanel.add(Box.createVerticalStrut(20));
-			contactPanel.add(statusOption);
-			contactPanel.add(contactStatus);
-			contactPanel.add(Box.createVerticalStrut(20));
-			contactPanel.add(IdOption);
-			contactPanel.add(contactId);*/
+			int tempResult = 0, tempId;
+			boolean idExam = false, numExam = false, failedStatus = false;
 			
-			int result = JOptionPane.showConfirmDialog(null, fields,"Please Enter Contact Info", JOptionPane.OK_CANCEL_OPTION);
-			
-			if(result == JOptionPane.OK_OPTION)
-			{//if added contact is valid, add that contact to the current tracer and create a new tracer with contact info
-				//System.out.println(contactName.getText().toString());
-				
-				if(!(guiData.containsContact(getOriginalPerson(), contactId.getText().toString())))	//if added contact exist or not
+			do
+			{
+				try
 				{
-					Person anotherTracer = new Person();
-					anotherTracer.setName(contactName.getText().toString());
-					anotherTracer.setNumber(contactNumber.getText().toString());
-					anotherTracer.setStatus(contactStatus.getText().toString());
-					anotherTracer.setId(contactId.getText().toString());
-					//System.out.println(anotherTracer);
-					//update contactBox with new id but not save
-					guiData.addTracer(anotherTracer);
-					contactArea.setText("Added Contact: " + anotherTracer.getPersonInfo());
-					setAddedContact(anotherTracer);
+					tempResult = JOptionPane.showConfirmDialog(null, fields,"Please Enter Contact Info", JOptionPane.OK_CANCEL_OPTION);
+					
+					if(tempResult == JOptionPane.OK_OPTION)
+					{//if added contact is valid, add that contact to the current tracer and create a new tracer with contact info
+						//System.out.println(contactName.getText().toString());
+						//parse fields and check for validation
+						tempId = Integer.parseInt(contactId.getText().toString());
+						//if exam is true, failed input, so validate
+						idExam = (tempId > 999999 || tempId < 000000 || (contactId.getText().toString().length() != 6));
+						numExam = InvalidPhoneNumber(contactNumber.getText().toString());
+						if(idExam || numExam)
+							throw new Exception();
+						else
+						{
+							if(!(guiData.containsContact(getOriginalPerson(), contactId.getText().toString())))	//if added contact exist or not
+							{
+								Person anotherTracer = new Person();
+								anotherTracer.setName(contactName.getText().toString());
+								anotherTracer.setNumber(contactNumber.getText().toString());
+								String temp = contactStatus.getText().toString();
+								if(temp.equals("1"))
+								{
+									anotherTracer.setStatus("Infected");
+								}
+								else if(temp.equals("0"))
+								{
+									anotherTracer.setStatus("Pending");
+								}
+								else if(temp.equals("-1"))
+								{
+									anotherTracer.setStatus("Not Infected");
+								}
+								else
+								{
+									failedStatus = true;
+									throw new Exception();
+								}
+								anotherTracer.setId(contactId.getText().toString());
+								//System.out.println(anotherTracer);
+								//update contactBox with new id but not save
+								guiData.addTracer(anotherTracer);
+								contactArea.setText("Added Contact: " + anotherTracer.getPersonInfo());
+								setAddedContact(anotherTracer);
+							}
+							else
+								JOptionPane.showMessageDialog(null,"ID: " + contactId.getText() +  " already exists as a Tracer");
+						}
+						
+					}
+					else
+						tempResult = JOptionPane.CANCEL_OPTION;
 				}
-				else
+				catch(Exception j)
 				{
-					JOptionPane.showMessageDialog(null, "ID: " + contactId.getText() +  " is already added as a Contact");
+					failedStatus = false;
+					JOptionPane.showMessageDialog(null, "Error has occured, Please enter a 6-Digit ID \nand a 10-Digit Phone Number\nand a valid Status identifier(-1,0,1)");
 				}
-			}
+			}while((idExam || numExam || failedStatus) && (tempResult == JOptionPane.OK_OPTION));
+	
+	
 		}
 	}
 		
@@ -650,12 +780,15 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	//ActionListener for the "Cancel" Button------------------------------------------------------------------------------
 	private class btnCancelListener implements ActionListener
 	{
-	
+		
 		public void actionPerformed(ActionEvent e)
 		{
 			idText.setText(getOriginalPerson().getId());
 			nameText.setText(getOriginalPerson().getName());
+			
 			statusText.setText(getOriginalPerson().getStatus());
+			resetStatustoOriginal();
+			
 			phoneNumberText.setText(getOriginalPerson().getNumber());
 			idText.setEditable(false);
 			nameText.setEditable(false);
@@ -704,11 +837,8 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			nameList.setModel(listModel);
 			
 		}
+		
 
-
-		
-		
-		
 		public void actionPerformed(ActionEvent e)
 		{
 			
@@ -733,7 +863,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 					nameText.setText(getOriginalPerson().getName());
 					phoneNumberText.setText(getOriginalPerson().getNumber());
 					statusText.setText(getOriginalPerson().getStatus());
-					
+					resetStatustoOriginal();
 				}
 			}while(numExam||idExam);
 			
@@ -745,6 +875,9 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			Person new_P = new Person();
 			new_P.setId(idText.getText().toString());
 			new_P.setName(nameText.getText().toString());
+			
+			
+			statusText.setText(buttonGroup.getSelection().getActionCommand());
 			new_P.setStatus(statusText.getText().toString());
 			new_P.setNumber(phoneNumberText.getText().toString());
 			
@@ -809,8 +942,11 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			btnAddContactInfo.setVisible(true);
 			idText.setEditable(true);
 			nameText.setEditable(true);
-			statusText.setEditable(true);
+			//statusText.setEditable(true);
 			phoneNumberText.setEditable(true);
+			PendingRadio.setEnabled(true);
+			InfectedRadio.setEnabled(true);
+			NotInfectedRadio.setEnabled(true);
 			//contactArea.setEditable(true);
 		}
 	}
@@ -921,6 +1057,36 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	
 	//----------------------------------FIRING HELPERS--------------------------------------------------------------------------------------------------------------------------
 	
+	private void resetStatustoOriginal()
+	{
+		if(getOriginalSet())
+		{
+			if(getOriginalPerson().getStatus().equals(PendingRadio.getActionCommand()))
+			{
+				PendingRadio.setEnabled(true);
+				PendingRadio.setSelected(true);
+				InfectedRadio.setEnabled(false);
+				NotInfectedRadio.setEnabled(false);
+			}
+			else if(getOriginalPerson().getStatus().equals(InfectedRadio.getActionCommand()))
+			{
+				InfectedRadio.setEnabled(true);
+				InfectedRadio.setSelected(true);
+				NotInfectedRadio.setEnabled(false);
+				PendingRadio.setEnabled(false);
+			}
+			else if(getOriginalPerson().getStatus().equals(NotInfectedRadio.getActionCommand()))
+			{
+				NotInfectedRadio.setEnabled(true);
+				NotInfectedRadio.setSelected(true);
+				PendingRadio.setEnabled(false);
+				InfectedRadio.setEnabled(false);
+			}
+			else
+				System.out.println("Error!");
+		}
+	}
+	
 	private boolean InvalidPhoneNumber(String target) {
 	    Pattern pattern = Pattern.compile("^\\d{10}$");
 	    Matcher matcher = pattern.matcher(target);
@@ -972,10 +1138,38 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		idText.setText(idVal);
 		Person origin = guiData.findPerson(idVal);
 		nameText.setText(origin.getName());
-		statusText.setText(origin.getStatus());
+		statusText.setText(setRadioStatus(origin.getStatus()));
 		phoneNumberText.setText(origin.getNumber());
 		fillContactBox(idVal);
 		setOriginalPerson(origin);
+	}
+	
+	private String setRadioStatus(String target)
+	{
+		if(target.toLowerCase().equals("not infected"))
+		{
+			NotInfectedRadio.setEnabled(true);
+			NotInfectedRadio.setSelected(true);
+			InfectedRadio.setEnabled(false);
+			PendingRadio.setEnabled(false);
+		}
+		else if(target.toLowerCase().equals("infected"))
+		{
+			InfectedRadio.setEnabled(true);
+			InfectedRadio.setSelected(true);
+			PendingRadio.setEnabled(false);
+			NotInfectedRadio.setEnabled(false);
+		}
+		else if(target.toLowerCase().equals("pending"))
+		{
+			PendingRadio.setEnabled(true);
+			PendingRadio.setSelected(true);
+			InfectedRadio.setEnabled(false);
+			NotInfectedRadio.setEnabled(false);
+		}
+		else
+			System.out.println("error,setRadioStatus");
+		return buttonGroup.getSelection().getActionCommand().toString();
 	}
 	
 	//-------------------------------CONSTRUTOR FILLERS------------------------------------------------------------------------------------------------------------------------------------------
@@ -1007,12 +1201,12 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		phoneLabel = new JLabel("Phone Number: ");
 		phoneLabel.setBounds(10, 94, 100, 13);
 		statusLabel = new JLabel("Status: ");
-		statusLabel.setBounds(10, 119, 47, 30);
+		statusLabel.setBounds(10, 119, 95, 30);
 		contactLabel = new JLabel("ID of Contacts: ");
 		contactLabel.setBounds(10, 154, 100, 20);
 		
 		//set up JFormattedTextFields
-		//NumberFormat integerFieldFormatter = NumberFormat.getIntegerInstance();
+		//NumberFormat integerFieldFormatter = NumberFormat.getInt95erI20tance();
 		//integerFieldFormatter.setMaximumFractionDigits(0);
 		//integerFieldFormatter.setGroupingUsed(false);
 		idText = new JTextField();
@@ -1093,5 +1287,27 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		btnDeleteTracer.setBounds(213, 368, 117, 29);
 		viewRightPanel.add(btnDeleteTracer);
 		btnDeleteTracer.setVisible(true);
+		
+		NotInfectedRadio = new JRadioButton("Not Infected");
+		NotInfectedRadio.setActionCommand("Not Infected");
+		buttonGroup.add(NotInfectedRadio);
+		NotInfectedRadio.setBounds(295, 70, 141, 23);
+		viewRightPanel.add(NotInfectedRadio);
+		
+		PendingRadio = new JRadioButton("Pending");
+		PendingRadio.setActionCommand("Pending");
+		PendingRadio.setSelected(true);
+		buttonGroup.add(PendingRadio);
+		PendingRadio.setBounds(295, 95, 141, 23);
+		viewRightPanel.add(PendingRadio);
+		
+		InfectedRadio = new JRadioButton("Infected");
+		InfectedRadio.setActionCommand("Infected");
+		InfectedRadio.setSelected(true);
+		buttonGroup.add(InfectedRadio);
+		InfectedRadio.setBounds(295, 120, 141, 23);
+		viewRightPanel.add(InfectedRadio);
+		
+		
 	}
 }

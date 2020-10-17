@@ -85,9 +85,9 @@ public class Person {
 		contactID.trimToSize();
 	}
 
-	public String isAtRisk()
+	public String isPending()
 	{
-		return "At Risk";
+		return "Pending";
 	}
 	public String isSafe()
 	{

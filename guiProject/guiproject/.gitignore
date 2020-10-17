@@ -37,3 +37,7 @@
 /MainPanel$MenuOpenFileListener$btnSaveListener.class
 /MainPanel$MenuOpenFileListener$contactBoxSelectListener.class
 /MainPanel$MenuOpenFileListener$nameListSelectListener.class
+/MainPanel$InfectedRadioListener.class
+/MainPanel$NotInfectedRadioListener.class
+/MainPanel$PendingRadioListener.class
+/MainPanel$RadioGroupButtonListener.class
