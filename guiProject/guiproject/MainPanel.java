@@ -25,8 +25,6 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	private JPanel viewRightPanel;
 	
 	private JList<String> nameList;
-	//private JList idList;
-	//private JList contactList;
 	DefaultListModel listModel;
 	
 	private JScrollPane scrollRightPane;
