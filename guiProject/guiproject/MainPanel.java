@@ -467,6 +467,7 @@ public class MainPanel extends JPanel
 			deleteTPanel.add(IdOption);
 			deleteTPanel.add(tracerId);
 			
+			//custom fields
 			String[] customOption = {
 					"Delete","Cancel"
 			};
@@ -478,7 +479,7 @@ public class MainPanel extends JPanel
 				{
 					tempResult = JOptionPane.showOptionDialog(null, deleteTPanel,"Delete A Tracer by ID",
 						JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE,null,customOption,customOption[0]);
-					if(tempResult == JOptionPane.YES_OPTION)
+					if(tempResult == JOptionPane.YES_OPTION)//ask user input
 					{
 						//parse int and check for validation
 						tempValid = Integer.parseInt(tracerId.getText().toString());
@@ -507,7 +508,7 @@ public class MainPanel extends JPanel
 					JOptionPane.showMessageDialog(null, "Error has occured, Please enter a 6-Digit ID");
 				}
 			}while((tempValid < 000000 || tempValid > 999999 || (tracerId.getText().toString().length() != 6)) && (tempResult == JOptionPane.YES_OPTION));
-			
+			//while id is not valid and the lenght is not 6, and the user has not hit yes
 			
 					
 			
@@ -550,6 +551,7 @@ public class MainPanel extends JPanel
 			JLabel extraIdLabel = new JLabel("Enter 6-Digit ID, ex: xxx123");
 			IdOption.setLabelFor(tracerId);
 			
+			//custom fields on dialog box
 			Object[] fields = {
 					nameOption, tracerName,
 					numberOption, extraNumLabel,tracerNumber,
@@ -700,6 +702,7 @@ public class MainPanel extends JPanel
 			JLabel extraNumLabel = new JLabel("Enter 10-Digit Phone Number, ex: xxxxxx2345");
 			JLabel extraIdLabel = new JLabel("Enter 6-Digit ID, ex: xxx123");
 			
+			//custom fields for dialog box
 			Object[] fields = {
 					nameOption, contactName,
 					numberOption, extraNumLabel,contactNumber,
@@ -710,6 +713,7 @@ public class MainPanel extends JPanel
 			int tempResult = 0, tempId;
 			boolean idExam = false, numExam = false, failedStatus = false;
 			
+			//validate dialog box
 			do
 			{
 				try
@@ -728,6 +732,7 @@ public class MainPanel extends JPanel
 							throw new Exception();
 						else
 						{
+							//if the person isn't already a tracer
 							if(!(guiData.containsContact(getOriginalPerson(), contactId.getText().toString())))	//if added contact exist or not
 							{
 								Person anotherTracer = new Person();
@@ -884,18 +889,18 @@ public class MainPanel extends JPanel
 			new_P.setStatus(statusText.getText().toString());
 			new_P.setNumber(phoneNumberText.getText().toString());
 			
-			
+			//get all the contacts of original person
 			ArrayList<String> c = guiData.getAllContactsOf(getOriginalPerson().getId());
-			//System.out.println(c);
 			if(getAddedContactSet())
 			{
+				//add contact to list, if set
 				c.add(getAddedContact().getId());
 				guiData.addTracer(getAddedContact());
 				updatenameList();
 				isAddedContactSet(false);
 			
 			}
-			
+			//set the model and add
 			contactBox.setModel(new DefaultComboBoxModel(c.toArray()));
 			contactArea.setText(guiData.getTracer(c.get(0)).getPersonInfo());
 			for(int i = 0; i < contactBox.getItemCount(); i++)
@@ -904,11 +909,13 @@ public class MainPanel extends JPanel
 				
 			}
 			
+			//update person info if id is same
 			if(getOriginalPerson().getId().equals(new_P.getId()))
 			{
 				guiData.updateTracer(new_P);
 				setOriginalPerson(new_P);
 			}
+			//if id isn't same, and is not it data, error
 			else if(!(getOriginalPerson().getId().equals(new_P.getId()) && guiData.containsTracer(guiData.findPerson(new_P.getId()))))
 			{
 				JOptionPane errorPopUp = new JOptionPane("Error");
@@ -917,7 +924,7 @@ public class MainPanel extends JPanel
 				idText.setText(getOriginalPerson().getId().toString());
 			}
 			else
-			{
+			{//add the new tracer
 				guiData.addTracer(new_P);
 				guiData.removeTracer(getOriginalPerson());
 				setOriginalPerson(new_P);
@@ -1098,7 +1105,7 @@ public class MainPanel extends JPanel
 	//----------------------------------FIRING HELPERS--------------------------------------------------------------------------------------------------------------------------
 	
 	public void doClose()
-	{
+	{//closes the file and saves the data
 		guiData.doGuiWrite(guiData.getReadFileName());
 		guiData.writeFile();
 		JOptionPane.showMessageDialog(null, "Data is saved in the "+guiData.getReadFileName()+" file and output.txt file");
@@ -1107,7 +1114,7 @@ public class MainPanel extends JPanel
 	
 	
 	private void resetStatustoOriginal()
-	{
+	{//set the radio buttons to original set
 		if(getOriginalSet())
 		{
 			if(getOriginalPerson().getStatus().equals(PendingRadio.getActionCommand()))
@@ -1136,6 +1143,7 @@ public class MainPanel extends JPanel
 		}
 	}
 	
+	//validates the phone number and contains the pattern for the phone number
 	private boolean InvalidPhoneNumber(String target) {
 	    Pattern pattern = Pattern.compile("^\\d{10}$");
 	    Matcher matcher = pattern.matcher(target);
@@ -1143,6 +1151,7 @@ public class MainPanel extends JPanel
 
 	  }
 	
+	//disables the text fields
 	private void disableTextFields()
 	{
 		idText.setEditable(false);
@@ -1151,7 +1160,7 @@ public class MainPanel extends JPanel
 		phoneNumberText.setEditable(false);
 		contactArea.setEditable(false);
 	}
-	
+	//fills the contactBox drop down list
 	public void fillContactBox(String selectedValue)
 	{
 		//String tempId = getSelectedID(selectedValue);
@@ -1169,6 +1178,7 @@ public class MainPanel extends JPanel
 		
 	}
 	
+	//gets the valid id from the string on the list
 	private String getSelectedID(String selected)
 	{
 		StringBuilder temp = new StringBuilder();
@@ -1180,6 +1190,7 @@ public class MainPanel extends JPanel
 		return temp.toString();
 	}
 	
+	//fills the info on the right based on the chosen person from list
 	private void fillInfo(String selectedValue) //nameList method to fill info, parameter taken is id,name
 	{
 		String idVal = getSelectedID(selectedValue);
@@ -1192,6 +1203,7 @@ public class MainPanel extends JPanel
 		setOriginalPerson(origin);
 	}
 	
+	//sets the status of the radio buttons
 	private String setRadioStatus(String target)
 	{
 		if(target.toLowerCase().equals("not infected"))

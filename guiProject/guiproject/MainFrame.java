@@ -29,7 +29,7 @@ public class MainFrame {
 		main.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
 				//outputs the saved and edited data to a text document;
-				//main.setDefaultCloseOperation(main.EXIT_ON_CLOSE);	//try to exit on red
+				//try to exit on red
 				main.setDefaultCloseOperation(main.EXIT_ON_CLOSE);
 				int result = JOptionPane.showConfirmDialog(null, "Do you want to save any changes made to the file?");
 				if(result == JOptionPane.YES_OPTION)
@@ -37,7 +37,7 @@ public class MainFrame {
 					//save changes
 					panel.doClose();	//then close
 				}
-
+				//if cancel, dont close
 				else if(result == JOptionPane.CANCEL_OPTION)
 				{
 					main.setDefaultCloseOperation(main.DO_NOTHING_ON_CLOSE);	//if cancel, then don't close
