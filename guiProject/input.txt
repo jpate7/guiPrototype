@@ -1,10 +1,10 @@
 000003,Roger Smith,Pending,2358392034,000001,
 000002,Alex Dain,Not Infected,1245093423,000004,
 000001,Jake Lyon,Pending,1234567845,000003,000005,
+000007,Jordan Welsh,Not Infected,9843582940,
+000006,Bill Lindsay,Not Infected,3458293832,
 000005,Sofie Gomez,Infected,1347682356,000001,000004,
 000004,Stan Bull,Infected,1236783456,000002,000005,
-000006,Bill Lindsay,Not Infected,3458293832
-000007,Jordan Welsh,Not Infected,9843582940
-000008,Bessie Walls,Not Infected,1048294738
-000009,Jillian Madden,Not Infected,0385639482
-000010,Shelly Green,Not Infected,9472453948
+000009,Jillian Madden,Not Infected,0385639482,
+000008,Bessie Walls,Not Infected,1048294738,
+000010,Shelly Green,Not Infected,9472453948,

@@ -411,11 +411,7 @@ public class MainPanel extends JPanel
 		{
 			public void actionPerformed(ActionEvent e)
 			{//outputs the saved and edited data to a text document;
-				guiData.doGuiWrite(guiData.getReadFileName());
-				guiData.writeFile();
-				JOptionPane.showMessageDialog(null, "Data is saved in the "+guiData.getReadFileName()+" file and output.txt file");
-				System.exit(0);
-				
+				doClose();
 			}
 		}
 	
@@ -1100,6 +1096,15 @@ public class MainPanel extends JPanel
 	}
 	
 	//----------------------------------FIRING HELPERS--------------------------------------------------------------------------------------------------------------------------
+	
+	public void doClose()
+	{
+		guiData.doGuiWrite(guiData.getReadFileName());
+		guiData.writeFile();
+		JOptionPane.showMessageDialog(null, "Data is saved in the "+guiData.getReadFileName()+" file and output.txt file");
+		System.exit(0);
+	}
+	
 	
 	private void resetStatustoOriginal()
 	{
