@@ -87,7 +87,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	private int listIndex = 0;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
 	
-	//private String buttonStatus;
+
 
 	
 
@@ -120,7 +120,6 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		//configure the list of the nameList
 		listModel = new DefaultListModel<String>();
 		DefaultListModel<String> ids = new DefaultListModel<String>();
-		//DefaultListModel<String> contacts = new DefaultListModel<String>();
 		ArrayList<Person> data = guiData.getAllTracers();
 		for(Person p: data)
 		{
@@ -137,7 +136,6 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		
 		//configure the Jlist of the left panel
 		listScrollPane = new JScrollPane();
-        //listScrollPane.setPreferredSize(new Dimension((MAIN_X/2),MAIN_Y));
 		nameList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		nameList.setSelectedIndex(0);
 		nameList.setVisibleRowCount(10);
@@ -173,7 +171,6 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		
 		nameList.setLayoutOrientation(JList.VERTICAL);
 		listScrollPane.add(nameList);
-		//listScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		listScrollPane.setViewportView(nameList);
 		leftPanel.add(listScrollPane, BorderLayout.CENTER);
 		
@@ -247,6 +244,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		dataSplit.setBackground(new Color(255, 240, 245));
 		dataSplit.setDividerSize(7);
 		dataSplit.setDividerLocation(MAIN_X/3);
+		
 		dataSplit.setPreferredSize(new Dimension(MAIN_X,MAIN_Y));
 		this.setPreferredSize(dataSplit.getPreferredSize());
 		this.add(dataSplit);
@@ -270,7 +268,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		//nameList.addListSelectionListener(new nameListSelectListener());
 		nameList.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent e) {
+			public void mousePressed(MouseEvent e) {
 				nameListMouseEvent(e);
 				}
 		});
@@ -383,6 +381,12 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			if (returnValue == JFileChooser.APPROVE_OPTION) 
 			{
 				String selectedFile = jfc.getSelectedFile().toString();
+				if(jfc.getSelectedFile().getName().equals("output.txt"))
+				{
+					JOptionPane.showMessageDialog(null, "output.txt is a write-only file, cannot be read");
+					return;
+				}
+				
 				if(guiData.getReadFileName().equals(jfc.getSelectedFile().getName()))
 					JOptionPane.showMessageDialog(null, "File is already open");
 				else
@@ -410,7 +414,8 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			public void actionPerformed(ActionEvent e)
 			{//outputs the saved and edited data to a text document;
 				guiData.doGuiWrite(guiData.getReadFileName());
-				JOptionPane.showMessageDialog(null, "Data is saved in the "+guiData.getReadFileName()+" file");
+				guiData.writeFile();
+				JOptionPane.showMessageDialog(null, "Data is saved in the "+guiData.getReadFileName()+" file and output.txt file");
 				System.exit(-1);
 			}
 		}
@@ -510,21 +515,6 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 			
 			
 					
-					
-			/*if(result == JOptionPane.YES_OPTION)
-			{
-				Person toDelete = guiData.findPerson(tracerId.getText().toString());
-				if(toDelete != null)	//if person toDelete exist
-				{
-					guiData.removeTracer(toDelete);
-					updateList(toDelete.getId() + ", " + toDelete.getName());
-					JOptionPane.showMessageDialog(null,"ID: " + tracerId.getText() +  " is now deleted");
-					guiData.deleteContactFromAllTracers(tracerId.getText().toString());
-				}
-				else
-					JOptionPane.showMessageDialog(null,"ID: " + tracerId.getText() +  " is not a tracer and cannot be deleted");
-				
-			}*/
 			
 			
 		
@@ -769,7 +759,6 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 									throw new Exception();
 								}
 								anotherTracer.setId(contactId.getText().toString());
-								//System.out.println(anotherTracer);
 								//update contactBox with new id but not save
 								guiData.addTracer(anotherTracer);
 								contactArea.setText("Added Contact: " + anotherTracer.getPersonInfo());
@@ -1171,7 +1160,6 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 		else
 		{
 			contactBox.setModel(new DefaultComboBoxModel(c.toArray()));
-			//System.out.println(guiData.getTracer(c.get(0)).getPersonInfo());
 			contactArea.setText(guiData.getTracer(c.get(0)).getPersonInfo());
 		}
 		
