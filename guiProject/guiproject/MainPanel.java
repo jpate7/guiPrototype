@@ -13,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import java.util.*;
 
-public class MainPanel extends JPanel /*implements ActionListener*/
+public class MainPanel extends JPanel 
 {
 	final int MAIN_X = 700, MAIN_Y = 500, ID_LEN = 6;
 	private DataManager guiData;
