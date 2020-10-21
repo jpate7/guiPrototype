@@ -366,7 +366,7 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 	{
 		public void actionPerformed(ActionEvent e)
 		{//immediately exits program without saving
-			System.exit(-1);
+			System.exit(0);
 		}
 	}
 	
@@ -416,7 +416,8 @@ public class MainPanel extends JPanel /*implements ActionListener*/
 				guiData.doGuiWrite(guiData.getReadFileName());
 				guiData.writeFile();
 				JOptionPane.showMessageDialog(null, "Data is saved in the "+guiData.getReadFileName()+" file and output.txt file");
-				System.exit(-1);
+				System.exit(0);
+				
 			}
 		}
 	
