@@ -340,6 +340,7 @@ public class DataManager
 		{
 			anotherPerson.addContactID(data[i]);	
 		}
+		scan.close();
 		return anotherPerson;
 	}
 	
